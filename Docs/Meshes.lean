@@ -12,16 +12,10 @@ set_option verso.exampleProject "../axioms_of_adaptivity"
 -- all definitions in here?
 set_option verso.exampleModule "AxiomsOfAdaptivity.Mesh"
 
-#doc (Manual) "Definitions" =>
+#doc (Manual) "Meshes" =>
 %%%
 htmlSplit := .never
 %%%
-
-In this chapter, we formalize the definitions and axioms presented in the paper
-_Axioms of adaptivity_{citep axioms}[]. We will refer to the paper
-as *AoA*.
-
-# Meshes
 
 At the core of the adaptive finite element method are
 space discretizations of the problems domain. We call a space discretization
@@ -41,7 +35,7 @@ of meshes for two reasons:
 cannot be looked up in *AoA* and
 - to highlight how the two versions translate.
 
-## Mathematical definition
+# Mathematical definition
 
 The idea for the definition is that a mesh consists of elements that form
 the problems domain when seen as a collection. So we want a mesh
@@ -82,7 +76,7 @@ As we will see this definition will allow us to show that the set
 of all meshes in $`X` together with the refinement relation $`≤` forms
 a partial order.
 
-## Lean definition
+# Lean definition
 
 Now let's see how the definition translates to Lean. We will use
 the `Finset` type from Lean's mathlib4 to represent finite sets.
@@ -178,21 +172,20 @@ on {anchorTerm Mesh}`α` is decidable.
 
 This is not the case for sets however because of the constructive nature of Lean.
 By default the axioms Lean is based on do not imply the law of excluded middle.
-So it is not guaranteed that for two arbitrary sets $`A, B`$ we can always
-find a proof of $`A = B`$ or $`A ≠ B`$. Using, for example, the subsets of
-$`ℝ^d`$ as {anchorTerm Mesh}`α` would not give us the partial order result.
+So it is not guaranteed that for two arbitrary sets $`A, B` we can always
+find a proof of $`A = B` or $`A ≠ B`. Using, for example, the subsets of
+$`ℝ^d` as {anchorTerm Mesh}`α` would not give us the partial order result.
 
 Circumventing this problem is possible by switching to classical logic
 using the `open Classical` instruction. However, given that AFEM is
 an algorithmic method, it is preferable to stay in constructive logic
 where possible.
-
 To leave this choice open, we abstract away from sets and use an arbitrary lattice structure
 on {anchorTerm Mesh}`α`. This way we can assume that the operations we need are available and
 just pose the decidability of equality on {anchorTerm Mesh}`α` as an assumption.
 
 Because sets are a special case of a lattice, we can still use sets as {anchorTerm Mesh}`α` if we
-want to. For example, we can define a mesh that  of the single element $`ℝ`$
+want to. For example, we can define the mesh $`\{ℝ\}` on the subsets of $`ℝ`
 ```anchor Mesh_Set_Example
 def real_line_singleton_mesh : Mesh (Set ℝ) :=
   singletonMesh Set.univ (by
@@ -205,12 +198,12 @@ def real_line_singleton_mesh : Mesh (Set ℝ) :=
     ]
   )
 ```
-supplying a proof that the set $`ℝ`$ is non-empty. And the operations and theorems
+supplying a proof that the set $`ℝ` is non-empty. The operations and theorems
 that need decidable equality can be used by adding the `open Classical` instruction:
 ```anchor Mesh_Classical
 open Classical
 noncomputable def example_union := real_line_singleton_mesh ∩ real_line_singleton_mesh
 ```
-Without the `open Classical` instruction allowing the law of excluded middle, we
+Without the `open Classical` instruction that allows the law of excluded middle, we
 would get an error regarding the intersection operation being unable to decide
 equality on sets.

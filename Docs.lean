@@ -5,7 +5,8 @@ import Docs.DocFeatures
 import Docs.AFEM
 import Docs.Lean
 import Docs.Conclusio
-import Docs.Definitions
+import Docs.AbstractSetting
+import Docs.Meshes
 
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
@@ -33,16 +34,20 @@ shortTitle := "Formalizing Optimal Convergence of Adaptive FEM in Lean"
 This document serves as my bachelor thesis in mathematics at TU Wien.
 It documents how I formalized parts of the optimality theory of adaptive finite element methods in Lean based
 on the paper _Axioms of adaptivity_{citep axioms}[] by Carstensen, Feischl, Page, and Praetorius.
+We will refer to this paper as *AoA* in the following.
 
 The initial chapters provide a brief introduction to theorem proving in Lean 4
 and adaptive finite element methods. The remainder of the document focuses on the
 Lean formalization of the assumptions and proofs presented in the referenced paper.
 Familiarity with the finite element method is assumed.
 
+-- TODO could collapse Lean and AFEM into an introduction
 {include 1 Docs.Lean}
 
 {include 1 Docs.AFEM}
 
-{include 1 Docs.Definitions}
+{include 1 Docs.Meshes}
+
+{include 1 Docs.AbstractSetting}
 
 {include 1 Docs.Conclusio}
