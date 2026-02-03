@@ -44,3 +44,17 @@ used as a foundation for mathematics, and allows
 to write proofs in this system in a highly interactive and
 convenient way. At the same time, the language includes automations that
 help the user with finding steps of a proof.
+
+# Mathlib4
+
+Writing mathematical proofs in Lean with reasonable effort is possible
+due to the user-maintained mathematic library [mathlib4](https://github.com/leanprover-community/mathlib4).
+It contains a large collection of predefined objects and theorems
+that can be used to base own definitions and proofs on. In the
+context of numerics preexisting building blocks would be functions, limits (topology),
+finite sums, series and their accompanying theorems. A basic theorem one might use
+in own code is that the sum of two convergent sequences converges to the sum of the limits.
+Having this framework considerable cuts down on the setup code needed for a
+proof formalization in Lean. That the library is centrally maintained by the Lean community
+ensures that it is of high quality and its widespread use guarantees that
+basing own code on the work of others does not lead to compatibility issues.
