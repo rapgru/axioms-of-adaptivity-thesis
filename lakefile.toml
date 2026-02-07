@@ -4,7 +4,11 @@ defaultTargets = ["Docs", "docs"]
 [[require]]
 name = "verso"
 git = "https://github.com/leanprover/verso"
-rev = "v4.24.0"
+rev = "v4.28.0-rc1"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
 
 [[lean_lib]]
 name = "Docs"

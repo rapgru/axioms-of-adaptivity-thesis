@@ -184,6 +184,13 @@ To leave this choice open, we abstract away from sets and use an arbitrary latti
 on {anchorTerm Mesh}`α`. This way we can assume that the operations we need are available and
 just pose the decidability of equality on {anchorTerm Mesh}`α` as an assumption.
 
+Polygons that may be disconnected are an example of a lattice that
+is bounded below when we include an "empty polygon". The intersection of
+two finite polygons is also a polygon and the same holds for the union, given
+that we allow disconnected polygons. It is a sublattice of the sets on $`ℝ^2`.
+This type can be implemented in a way such that equality is algorithmically
+decidable (e.g. by storing the points that make up the polygon).
+
 Because sets are a special case of a lattice, we can still use sets as {anchorTerm Mesh}`α` if we
 want to. For example, we can define the mesh $`\{ℝ\}` on the subsets of $`ℝ`
 ```anchor Mesh_Set_Example

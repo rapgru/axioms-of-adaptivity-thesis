@@ -7,6 +7,10 @@ import Docs.Lean
 import Docs.Conclusio
 import Docs.AbstractSetting
 import Docs.Meshes
+import Docs.Lemma47
+import Docs.Cor48
+import Docs.Lemma49
+import Docs.Prop410
 
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
@@ -49,5 +53,10 @@ Familiarity with the finite element method is assumed.
 {include 1 Docs.Meshes}
 
 {include 1 Docs.AbstractSetting}
+
+{include 1 Docs.Lemma47}
+{include 1 Docs.Cor48}
+{include 1 Docs.Lemma49}
+{include 1 Docs.Prop410}
 
 {include 1 Docs.Conclusio}

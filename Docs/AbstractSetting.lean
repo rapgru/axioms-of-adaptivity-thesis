@@ -115,7 +115,7 @@ structure AdaptiveAlgorithm (α β: Type*) [DecidableEq α] [Lattice α] [OrderB
   -- A4: reliability --
   C_drel : ℝ
   hC_drel : 0 < C_drel
-  -- This is a result from A4 and the compatibility condition of the measure d.
+  -- This is a result from A4 and the compatibility condition of the measure d (Lemma 3.4).
   -- Because this proof is not formalized we assume this result instead of A4.
   reliability' : ∀ T, d T u (U T) ≤ C_rel' C_Δ C_drel * √(gη2 η T (U T))
 
@@ -130,3 +130,16 @@ structure AdaptiveAlgorithm (α β: Type*) [DecidableEq α] [Lattice α] [OrderB
     ∑ k ∈ range n, (d (𝒯 <| k + l + 1) (U <| 𝒯 <| k + l + 1) (U <| 𝒯 <| k + l) ^ 2 - ε_qo * d (𝒯 <| k + l) u (U <| 𝒯 <| k + l) ^ 2)
     ≤ C_qo * gη2 η (𝒯 l) (U <| 𝒯 l)
 ```
+
+Important additional definitions that appear throughout the formalization
+are the abbreviations for the term $`η^2(𝒯_l, U(𝒯_l))` and
+the that appears many times in *AoA*.
+
+```anchor seq_abbrev
+abbrev gη2_seq l := gη2 alg.η (alg.𝒯 <| l) (alg.U <| alg.𝒯 <| l)
+noncomputable abbrev nn_gη_seq n := NNReal.sqrt (alg.gη2_seq n).toNNReal
+```
+
+The second line is a version that maps to the non-negative Reals and gives $`η`
+as opposed to $`η^2`. This definition is used in for the proof
+of estimator convergence, more in -- TODO!! cite
