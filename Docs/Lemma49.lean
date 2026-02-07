@@ -15,6 +15,7 @@ set_option maxHeartbeats 20000000
 #doc (Manual) "Summability Equivalence" =>
 %%%
 htmlSplit := .never
+tag := "summability_equivalence"
 %%%
 
 This chapter formalizes the proof of the analytical summability Lemma 4.9 from *AoA*.
