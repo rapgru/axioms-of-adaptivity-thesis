@@ -98,7 +98,7 @@ theorem summability_equivalence (ha : ∀ n, a n ≠ 0) :
 ```
 where `List.TFAE` stands for "the following are equivalent" and is just
 pairwise equivalence between all members of the argument behind the scenes.
-A benefit of the {anchorTerm}`List.TFAE` property is that there are accompanying
+A benefit of the `List.TFAE` property is that there are accompanying
 tactics that construct the pairwise equivalences if sufficiently
 many implications between the statements are given.
 
