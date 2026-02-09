@@ -136,8 +136,8 @@ are the abbreviations for the term $`η^2(𝒯_l, U(𝒯_l))` and
 the that appears many times in *AoA*.
 
 ```anchor seq_abbrev
-abbrev gη2_seq l := gη2 alg.η (alg.𝒯 <| l) (alg.U <| alg.𝒯 <| l)
-noncomputable abbrev nn_gη_seq n := NNReal.sqrt (alg.gη2_seq n).toNNReal
+def gη2_seq l := gη2 alg.η (alg.𝒯 <| l) (alg.U <| alg.𝒯 <| l)
+noncomputable def nn_gη_seq n := NNReal.sqrt (alg.gη2_seq n).toNNReal
 ```
 
 The second line is a version that maps to the non-negative Reals and gives $`η`
