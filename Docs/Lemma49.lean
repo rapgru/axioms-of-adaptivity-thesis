@@ -334,7 +334,7 @@ and choosing
 $`C \coloneqq C q (1-q)⁻¹`. Of course we need to
 prove that this constant is greater than zero. In Lean we
 have
-```anchor
+```anchor uniform_of_uniform_r_linear_3
   constructor
   swap
   · use C * q * (1-q)⁻¹

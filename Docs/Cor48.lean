@@ -409,14 +409,14 @@ lemma estimator_limsup_zero (hd : Tendsto d atTop (𝓝 0)) (hη₁ : BddAbove (
 }
 ```
 The boundedness proofs are necessary to apply mathlib theorems about `limsup` and use the result
-from the {reference "boundedness_eta"}[previous section]. Also note that `•` is the pointwise
+from the {ref "boundedness_eta"}[previous section]. Also note that `•` is the pointwise
 multiplication in Lean and is used in the proof to avoid writing the argument of
 {anchorTerm estimator_limsup_zero}`limsup`
 as anonymous function.
 
 ### Convergence of η to Zero
 
-The final step is to conclude convergence of $(η_n)$. We already know that
+The final step is to conclude convergence of $`(η_n)` . We already know that
 $`\lim\sup_{n→∞} η_n = 0`. Naturally
 $$`
 \lim\inf_{n→∞} η_n ≤ \lim\sup_{n→∞} η_n = 0.
@@ -456,7 +456,7 @@ to port the result of `SimpleEstimatorReduction` to the `AdaptiveAlgorithm`
 world, i.e. that $`\lim_{l→∞} η^2(𝒯_l, U(𝒯_l)) = 0`.
 
 The only non-trivial step in this endeavour is that we formulated
-the estimator reduction in {reference "lemma47_formal_statement"}[Lemma 4.7]
+the estimator reduction in {ref "lemma47_formal_statement"}[Lemma 4.7]
 for any $`δ > 0` with $`ρ_{est}(δ) < 1`. So, for an estimator reduction property
 to actually hold, we have to find a concrete such $`δ`. This is done
 via the utility lemma
