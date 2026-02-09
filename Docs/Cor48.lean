@@ -543,7 +543,8 @@ to show the claim. The sequence we use for $`(η_n)` is {anchorTerm convergence_
 from  --TODO reference
 
 Now the final blow is to show convergence of the distance to the unkown limit $`u`.
-This follows from reliability because it allows to sandwich $`(\mathbb{d}(𝒯_l, u, U(𝒯_l)))_{l∈ℕ}`
+This follows from reliability (A4) because it allows us to
+sandwich $`(\mathbb{d}(𝒯_l, u, U(𝒯_l)))_{l∈ℕ}`
 between the zero-convergent sequence $`(√{η^2(𝒯_l, U(𝒯_l))})_{l∈ℕ}` and the constant
 sequence zero:
 $$`

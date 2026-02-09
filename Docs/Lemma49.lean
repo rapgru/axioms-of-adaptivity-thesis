@@ -78,7 +78,7 @@ and there is no syntax to change this summation range.
 
 Also, because
 an infinite sum appears in uniform summability, we need to add the technical
-assumption that $`a_n` is summable in the first statement.
+assumption that $`(a_n)` is summable in the first statement.
 This is essential, because by convention mathlib4 handles the edge cases
 of mathematical operators in the following way: Instead of
 throwing an error or having operators only partially defined, when the
@@ -122,10 +122,13 @@ theorem summability_equivalence (ha : ∀ n, a n ≠ 0) :
 }
 ```
 where the referenced proofs are the implications 1.) $`⇔` 3.) and 2.) $`⇔` 3.).
-This approach follows the proof in *AoA*, the remainder of this chapter shows
-how these implications are shown.
+This approach follows the proof in *AoA*.
 
-# Uniform implies Uniform R-linear
+# Proof
+
+We will now prove the implication one after the other.
+
+## Uniform Summability implies Uniform R-linear
 
 We begin by showing an upper bound for the series $`\sum_{k=l+n}^{\infty} \quad a_{k}^{2}`
 by induction. In precise terms we will show that the estimate
@@ -261,3 +264,115 @@ for $`(a_n)` is essential to use. We need it to use mathlib theorems
 about series that are not true for divergent sums (which are equal to $`0`).
 Estimating one summand with the whole series and splitting of one summand
 is where we needed a summability proof.
+
+## Uniform R-linear implies Uniform Summability
+
+This direction essentially uses the convergence of the geometric series.
+From that we can derive a uniform upper bound on partial sums of the series
+we are concerned with. Then the uniform summability follows easily from this
+bound. We will present the Lean proof interlaced with mathematical explanations.
+
+We start by establishing the assumptions and constants from uniform R-linear convergence
+```anchor uniform_of_uniform_r_linear_1
+lemma uniform_of_uniform_r_linear (h : uniform_r_linear_convergence a) :
+    uniform_summability a := by {
+  rcases h with ⟨q,hq,C,hC,h⟩
+```
+Then we prove for all $`l,n∈ℕ` the bound
+$$`
+\begin{aligned}
+∑_{k=0}^{n-1} a_{k+l+1}^2 &≤ ∑_{k=0}^{n-1} C q^{k+1} a_l^2 \\
+&= C q a_l^2 ∑_{k=0}^{n-1} q^k \\
+&≤ C q a_l^2 ∑_{k=0}^{∞} q^k \\
+&= C q a_l^2 (1-q)⁻¹
+\end{aligned}
+`
+using exactly this calculation in a `have`-block:
+```anchor uniform_of_uniform_r_linear_2
+  have : ∀ l n, ∑ k ∈ range n, (a^2) (k + l + 1) ≤ C * q * (1 - q)⁻¹ * (a^2) l := by {
+    intros l n
+    calc ∑ k ∈ range n, (a^2) (k + l + 1)
+      _ ≤ ∑ k ∈ range n, C * q^(k + 1) * (a^2) l := by {
+        gcongr with k
+        specialize h (k + 1) l
+        rw [← add_assoc, add_comm l k] at h
+        assumption
+      }
+      _ = ∑ k ∈ range n, (C * q * (a^2) l) * q^k := by congr with _; ring_nf
+      _ = C * q * (a^2) l * ∑ k ∈ range n, q^k := by rw [← mul_sum]
+      _ ≤ C * q * (a^2) l * ∑' k, q^k := by {
+        gcongr
+
+        apply Summable.sum_le_tsum
+        · intros i hi
+          exact pow_nonneg (le_of_lt hq.1) i
+
+        exact NNReal.summable_coe.mp <| summable_geometric_of_lt_one (le_of_lt hq.1) hq.2
+      }
+      _ = C * q * (a^2) l * (1 - q)⁻¹ := by {
+        congr
+        rw [← NNReal.coe_inj]
+        push_cast [le_of_lt hq.2]
+        exact tsum_geometric_of_lt_one (le_of_lt hq.1) hq.2
+      }
+      _ = C * q * (1 - q)⁻¹ * (a^2) l := by ring
+  }
+```
+In the first inquality we use uniform R-linear convergence and in
+the second one the convergence of the geometric series because $`q<1`.
+
+Now we can prove uniform summability, which means we have to
+show that $`(a_n)` is summable and the bound
+$$`
+∑_{k=l+1}^∞ η(𝒯_k; U(𝒯_k))² ≤ C_3 η(𝒯_l; U(𝒯_l))².
+`
+
+We start with the bound, this follows directly from
+our uniform bound by taking the limit (with `NNReal.tsum_le_of_sum_range_le`
+mathlib theorem)
+and choosing
+$`C \coloneqq C q (1-q)⁻¹`. Of course we need to
+prove that this constant is greater than zero. In Lean we
+have
+```anchor
+  constructor
+  swap
+  · use C * q * (1-q)⁻¹
+    constructor
+    · apply mul_pos
+      exact mul_pos hC hq.1
+      apply Right.inv_pos.mpr
+      exact tsub_pos_of_lt hq.2
+
+    intros l
+    apply NNReal.tsum_le_of_sum_range_le (this l)
+```
+where the `constructor` and `swap` tactics set us
+up to show the bound first and then summability.
+
+So what remains is that $`(a_n)` is actually summable.
+This follows from our uniform partial sum bound by
+setting $`l=0`. By calculating
+$$`
+\begin{aligned}
+∑_{k=0}^{n-1} a_k^2 &≤ ∑_{k=0}^n a_k^2 \\
+&= ∑_{k=0}^{n-1} a_{k+1}^2 + a_0^2 \\
+&≤ C q (1-q)⁻¹ a_0^2 + a_0^2
+\end{aligned}
+`
+we gain a constant bound for the partial sum which means
+that $`(a_n)` must be summable. This transfers to Lean as
+```anchor uniform_of_uniform_r_linear_4
+  · apply NNReal.summable_of_sum_range_le
+
+    intros n
+    calc ∑ i ∈ range n, (a ^ 2) i
+      _ ≤ ∑ i ∈ range (n+1), (a ^ 2) i := by {
+        apply sum_le_sum_of_subset_of_nonneg (range_subset.mpr (by simp)) ?_
+        · intros
+          apply sq_nonneg
+      }
+      _ = ∑ i ∈ range n, (a ^ 2) (i + 1) + (a ^ 2) 0 := by simp [Finset.sum_range_succ']
+      _ ≤ C * q * (1 - q)⁻¹ * (a ^ 2) 0 + (a ^ 2) 0 := by rel [this 0 n]
+```
+which concludes the proof.
