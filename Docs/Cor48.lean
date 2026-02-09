@@ -254,23 +254,26 @@ lemma weighted_sum_bound (hd : BddAbove (Set.range d)) (n : ℕ):
 }
 ```
 In {anchorTerm weighted_sum_bound}`h₃` we use the geometric sum theorem from mathlib,
-which is formulated for the real numbers. Therefore we have to cast
+which assumes more structure than `NNReal` has. Therefore we have to cast
 to the reals and push the cast inwards. For this we have to supply
 proof that the terms involved are non-negative ({anchorTerm weighted_sum_bound}`hq₁`,
 {anchorTerm weighted_sum_bound}`hq₂`).
 
 ### Boundedness of η
+%%%
+tag := "boundedness_eta"
+%%%
 
 -- TODO unify the "we need this because operators have defaults" stories
-The main argument for $`\lim_{n→∞} η_n = 0` uses the $`\lim\sup` of $`(η_n)`.
+The main $`d` argument for $`\lim_{n→∞} η_n = 0` uses the $`\lim\sup` of $`(η_n)`.
 Because the $`\lim\sup` of an unbounded sequence is defined to be zero
 in Lean, the next step will be to explicitly show that $`(η_n)`
 is bounded, giving us access to mathlib theorems about $`\lim\sup`.
 
-We show that $(η_n)$ is bounded above by $`\sqrt{K}` where
+We show that $`(η_n)` is bounded above by $`\sqrt{K}` where
 $$`
 K \coloneqq \max { η_0^2 + C (\sup_{i ∈ ℕ_0} d_i)^2 \frac{1/q}{1/q - 1}, η_0^2 }.
-` (of course still assuming that $(d_n)$ is bounded).
+` (of course still assuming that $`(d_n)` is bounded).
 Using the maximum here is mathematically non-sensical because
 the first value is greater or equal than the second one. In Lean
 it avoids having to show non-negativity of the
@@ -328,10 +331,10 @@ lemma estimator_bounded (hd : BddAbove (Set.range d)) : BddAbove (Set.range η) 
 
 ### Limsup of η is Zero
 
-Now we can show that assuming $\lim_{n→∞} d_n = 0$ and boundedness
-of $`η` that $`\lim\sup_{n→∞} η_n = 0`.
-We do this with the help of the following lemma whose proof we will skip
-```lean
+Now we can show that $`\lim\sup_{n→∞} η_n = 0` assuming $`\lim_{n→∞} d_n = 0` and boundedness
+of $`η`.
+We do this with the help of the utility lemma
+```
 lemma smaller_q_eq_zero (a q: NNReal) (hq : q < 1) (ha : a ≤ q*a) : a = 0 := by sorry
 ```
 
@@ -341,3 +344,224 @@ $$`
 \lim\sup_{n→∞} η_n ≤ q \lim\sup_{n→∞} η_n
 `.
 
+This is clear from
+$$`
+\begin{aligned}
+\limsup_{n \to \infty} η_n^2 &= \limsup_{n \to \infty} η_{n+1}^2 \\
+&≤ \limsup_{n \to \infty} (q η_n^2 + C d_n^2) \\
+&≤ \limsup_{n \to \infty} q η_n^2 + \underbrace{\limsup_{n \to \infty} C d_n^2}_{=0 (\mathrm{convergence of }d_n)} \\
+&= \limsup_{n \to \infty} q η_n^2 \\
+&= q \limsup_{n \to \infty} η_n^2
+\end{aligned}
+`
+using the convergence of $`(d_n)` and boundedness of $`(η_n)`. The Lean proof
+follows this idea and uses utility theorems to supply all necessary boundedness
+proofs.
+
+```anchor estimator_limsup_zero
+lemma estimator_limsup_zero (hd : Tendsto d atTop (𝓝 0)) (hη₁ : BddAbove (Set.range η)) :
+    limsup (η^2) atTop = 0 := by {
+  let ⟨q, q_range, C, C_pos, bound⟩ := h
+
+  apply smaller_q_eq_zero _ q q_range.2
+
+  have hdc : Tendsto (C • d^2) atTop (𝓝 0) := by {
+    have := Filter.Tendsto.pow hd 2
+    have := Filter.Tendsto.mul_const C this
+    simpa [mul_comm] using this
+  }
+
+  have hη₂ : BddAbove (Set.range (η^2)) := monotone_map_bdd_above_range (pow_left_mono 2) hη₁
+  have hη₃ : BddAbove (Set.range (q • η^2)) := monotone_map_bdd_above_range mul_left_mono hη₂
+
+  have h₁ : limsup ((η^2) ∘ (· + 1)) atTop ≤ limsup (q • η^2 + C • d^2) atTop := by {
+    apply Filter.limsup_le_limsup
+    · exact Filter.Eventually.of_forall bound
+    · apply Filter.IsBoundedUnder.isCoboundedUnder_le
+      apply BddBelow.isBoundedUnder_of_range
+      apply nnreal_fun_bbd_below
+    · apply BddAbove.isBoundedUnder_of_range
+      apply BddAbove.range_add hη₃ <| Tendsto.bddAbove_range hdc
+  }
+
+  have h₂ : limsup (q • η^2 + C • d^2) atTop ≤ limsup (q • η^2) atTop + limsup (C • d^2) atTop := by {
+    rw [← NNReal.coe_le_coe]
+    push_cast [← NNReal.toReal_limsup]
+
+    apply limsup_add_le ?cη_below ?cη_above ?cd_below ?cd_above
+    case cη_below =>
+      exact BddBelow.isBoundedUnder_of_range <| lift_bound_below _
+    case cη_above =>
+      exact BddAbove.isBoundedUnder_of_range <| lift_bound_above _ hη₃
+    case cd_below =>
+      exact Filter.IsBoundedUnder.isCoboundedUnder_le <| BddBelow.isBoundedUnder_of_range <| lift_bound_below _
+    case cd_above =>
+      exact BddAbove.isBoundedUnder_of_range <| lift_bound_above _ <| Tendsto.bddAbove_range hdc
+  }
+
+  calc limsup (η^2) atTop
+    _ = limsup (λ n ↦ (η (n+1))^2) atTop := by rw [← Filter.limsup_nat_add _ 1]; rfl
+    _ = limsup ((η^2) ∘ (· + 1)) atTop := by rfl
+    _ ≤ limsup (q • η^2 + C • d^2) atTop := by exact h₁
+    _ ≤ limsup (q • η^2) atTop + limsup (C • d^2) atTop := by exact h₂
+    _ = limsup (q • η^2) atTop := by simp [Tendsto.limsup_eq hdc]
+    _ = q * limsup (η^2) atTop := by exact nnreal_limsup_const_mul <| BddAbove.isBoundedUnder_of_range hη₂
+}
+```
+The boundedness proofs are necessary to apply mathlib theorems about `limsup` and use the result
+from the {reference "boundedness_eta"}[previous section]. Also note that `•` is the pointwise
+multiplication in Lean and is used in the proof to avoid writing the argument of
+{anchorTerm estimator_limsup_zero}`limsup`
+as anonymous function.
+
+### Convergence of η to Zero
+
+The final step is to conclude convergence of $(η_n)$. We already know that
+$`\lim\sup_{n→∞} η_n = 0`. Naturally
+$$`
+\lim\inf_{n→∞} η_n ≤ \lim\sup_{n→∞} η_n = 0.
+`
+So by standard analysis, if $`lim\inf` and $`lim\sup` agree, we have
+convergence, which means $`\lim_{n→∞} η_n = 0`.
+
+The Lean proof is totally analogous, again supplying additional boundedness
+proofs to unlock the analytical mathlib theorems
+```anchor convergence_of_estimator_simple
+theorem convergence_of_estimator_simple (hd_lim : Tendsto d atTop (𝓝 0)) : Tendsto (η^2) atTop (𝓝 0) := by {
+  let hd_above := Tendsto.bddAbove_range hd_lim
+  let hη_above := estimator_bounded h hd_above
+  have hη2_above := monotone_map_bdd_above_range (pow_left_mono 2) hη_above
+  have hη2_below : BddBelow (Set.range (η^2)) := nnreal_fun_bbd_below _
+  let hη_limsup := estimator_limsup_zero h hd_lim hη_above
+
+  apply tendsto_of_liminf_eq_limsup
+  case hinf =>
+    apply nonpos_iff_eq_zero.mp
+    rw [← hη_limsup]
+    apply liminf_le_limsup
+    · exact BddAbove.isBoundedUnder_of_range hη2_above
+    · exact BddBelow.isBoundedUnder_of_range hη2_below
+  case hsup => exact hη_limsup
+  case h => exact BddAbove.isBoundedUnder_of_range hη2_above
+  case h' => exact BddBelow.isBoundedUnder_of_range hη2_below
+}
+```
+Now we have reached the final conclusion of `SimpleEstimatorReduction`.
+
+## Estimator Convergence for `AdaptiveAlgorithm`
+
+In a "glueing" theorem we can now use the theory of `SimpleEstimatorReduction`
+to show the actual statement of Corollary 4.8. The first step is
+to port the result of `SimpleEstimatorReduction` to the `AdaptiveAlgorithm`
+world, i.e. that $`\lim_{l→∞} η^2(𝒯_l, U(𝒯_l)) = 0`.
+
+The only non-trivial step in this endeavour is that we formulated
+the estimator reduction in {reference "lemma47_formal_statement"}[Lemma 4.7]
+for any $`δ > 0` with $`ρ_{est}(δ) < 1`. So, for an estimator reduction property
+to actually hold, we have to find a concrete such $`δ`. This is done
+via the utility lemma
+```
+lemma estimator_reduction_delta_exists : ∃ δ > 0, alg.ρ_est δ ∈ Set.Ioo 0 1 ∧ 0 < alg.C_est δ := by sorry
+```
+which is has an uninspiring proof of the fact that
+$$`
+δ := \frac12 * ((1 - ρ_{red}) θ (1 - (1 - ρ_{red}) * θ)⁻¹)
+`
+fulfils $`ρ_{est}(δ) < 1`.
+
+Otherwise, mathematically speaking,
+it is very obvious that the simplified theorem applies to
+the sequences generated from the `AdaptiveAlgorithm`. However, in
+Lean this requires a few lines of code. Especially the conversion
+between sequences in the `NNReal`s and real sequences requires some
+extra proofs:
+
+```anchor convergence_of_estimator
+lemma convergence_of_estimator (hd_seq_lim : Tendsto (d_seq alg) atTop (𝓝 0)) :
+    Tendsto alg.gη2_seq atTop (𝓝 0) := by {
+
+  -- first define the object we want to apply the simplified convergence
+  -- theorem to
+  rcases alg.estimator_reduction_delta_exists with ⟨δ, hδ, ⟨hρ_est, hC_est⟩⟩
+
+  let ρ_est := alg.ρ_est δ
+  let C_est := alg.C_est δ
+
+  have estimator_reduction := alg.estimator_reduction δ hδ hρ_est.2
+
+  let d n := (d_seq alg n).toNNReal
+
+  let est_red := {
+    q := ρ_est.toNNReal,
+    C := C_est.toNNReal,
+    C_pos := by simpa using hC_est
+    q_range := by simpa using hρ_est
+    bound := by {
+      intros n
+      apply NNReal.coe_le_coe.mp
+      push_cast
+
+      have hd : d n = d_seq alg n := by {
+        apply Real.coe_toNNReal
+        apply alg.non_neg
+      }
+
+      have hq : ρ_est.toNNReal = ρ_est := by {
+        apply Real.coe_toNNReal
+        exact le_of_lt hρ_est.1
+      }
+
+      have hC : C_est.toNNReal = C_est := by {
+        apply Real.coe_toNNReal
+        exact le_of_lt hC_est
+      }
+
+      simp only [alg.hnn_gη_seq, hd, hq, hC]
+      unfold d_seq
+      exact estimator_reduction n
+    }
+  : SimpleEstimatorReduction alg.nn_gη_seq d}
+
+  have hd_lim : Tendsto d atTop (𝓝 0) := by {
+    rw [Eq.symm Real.toNNReal_zero]
+    apply tendsto_real_toNNReal hd_seq_lim
+  }
+
+  conv =>
+    enter [1, n]
+    rw [← alg.hnn_gη_seq n]
+    norm_cast
+  rw [← NNReal.coe_zero]
+  apply NNReal.tendsto_coe.mpr
+  exact est_red.convergence_of_estimator_simple hd_lim
+}
+```
+The main point here is that we define the instance {anchorTerm convergence_of_estimator}`est_red`
+of type {anchorTerm convergence_of_estimator}`SimpleEstimatorReduction` and access its
+{anchorTerm convergence_of_estimator}`est_red.convergence_of_estimator_simple` proof
+to show the claim. The sequence we use for $`(η_n)` is {anchorTerm convergence_of_estimator}`nn_gη_seq`
+from  --TODO reference
+
+Now the final blow is to show convergence of the distance to the unkown limit $`u`.
+This follows from reliability because it allows to sandwich $`(\mathbb{d}(𝒯_l, u, U(𝒯_l)))_{l∈ℕ}`
+between the zero-convergent sequence $`(√{η^2(𝒯_l, U(𝒯_l))})_{l∈ℕ}` and the constant
+sequence zero:
+$$`
+0 ≤ \mathbb{d}(𝒯_l, u, U(𝒯_l)) ≤ C_{rel} √{η^2(𝒯_l, U(𝒯_l))}
+`
+This is translates nicely to a Lean proof using the {anchorTerm convergence_of_apriori}`squeeze_zero`
+theorem from mathlib.
+```anchor convergence_of_apriori
+theorem convergence_of_apriori (hd_seq_lim : Tendsto (d_seq alg) atTop (𝓝 0)) :
+  Tendsto (fun n ↦ alg.d (alg.𝒯 <| n) alg.u (alg.U <| alg.𝒯 n)) atTop (𝓝 0) := by {
+    have := Filter.Tendsto.sqrt (convergence_of_estimator alg hd_seq_lim)
+    have := Filter.Tendsto.const_mul alg.C_rel this
+    simp at this
+
+    apply squeeze_zero _ _ this
+    · exact fun _ ↦ by apply alg.non_neg
+    · intros t
+      apply alg.reliability
+}
+```
+This concludes the Lean proof of Corollary 4.8

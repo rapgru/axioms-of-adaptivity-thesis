@@ -36,11 +36,14 @@ include alg
 ```
 
 # Formal Statement
+%%%
+tag := "lemma47_formal_statement"
+%%%
 
 The wording "for all sufficiently small" hides the dependency
 of the "constants" $`ρ_est` and $`C_est` on $`δ`. For the formalized version we
 define these values as functions of $`δ` and show the estimator
-reduction property for all $`δ` such that $`ρ_{est}(δ) < 1`.
+reduction property for all $`δ > 0` such that $`ρ_{est}(δ) < 1`.
 
 We define the functions `ρ_est` and `C_est` as
 ```anchor lemma47_consts
