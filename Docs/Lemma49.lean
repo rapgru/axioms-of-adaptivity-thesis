@@ -1,6 +1,13 @@
 import VersoManual
 import Docs.Papers
-import Mathlib
+import Mathlib.Data.NNReal.Basic
+import Mathlib.Topology.Instances.NNReal.Lemmas
+import Mathlib.Topology.Algebra.InfiniteSum.Basic
+import Mathlib.Data.List.TFAE
+import Mathlib.Algebra.BigOperators.Group.Finset.Basic
+import Mathlib.Algebra.BigOperators.Intervals
+import Mathlib.Order.Interval.Set.Basic
+import Mathlib.Tactic.Common
 
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
@@ -250,7 +257,7 @@ Defining the function `g` seems extraneous at first glance, but is an effective
 trick here to make Lean apply {anchorTerm uniform_r_linear_of_uniform}`Summable.le_tsum`
 correctly.
 Note that this is the proof where the summability assumption
-for $`a_n` is essential to use. We need it to use mathlib theorems
+for $`(a_n)` is essential to use. We need it to use mathlib theorems
 about series that are not true for divergent sums (which are equal to $`0`).
 Estimating one summand with the whole series and splitting of one summand
 is where we needed a summability proof.

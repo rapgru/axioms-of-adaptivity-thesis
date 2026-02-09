@@ -45,7 +45,6 @@ and adaptive finite element methods. The remainder of the document focuses on th
 Lean formalization of the assumptions and proofs presented in the referenced paper.
 Familiarity with the finite element method is assumed.
 
--- TODO could collapse Lean and AFEM into an introduction
 {include 1 Docs.Lean}
 
 {include 1 Docs.AFEM}
@@ -55,8 +54,11 @@ Familiarity with the finite element method is assumed.
 {include 1 Docs.AbstractSetting}
 
 {include 1 Docs.Lemma47}
+
 {include 1 Docs.Cor48}
+
 {include 1 Docs.Lemma49}
+
 {include 1 Docs.Prop410}
 
 {include 1 Docs.Conclusio}
