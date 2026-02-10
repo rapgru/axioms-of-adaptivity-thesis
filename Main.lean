@@ -16,11 +16,12 @@ open Std (HashMap)
 
 open Docs
 
-def config : Config where
+def config : RenderConfig where
   emitTeX := false
   emitHtmlSingle := .no
   emitHtmlMulti := .immediately
   htmlDepth := 2
   extraFiles := [("static_files", "static_files")]
+  extraCss := [":root { verso-code-keyword-color: #D32F2F; --verso-code-const-color: #6f42c1; }"]
 
-def main := manualMain (%doc Docs) --(config := config.addKaTeX)
+def main := manualMain (%doc Docs) (config := config)
