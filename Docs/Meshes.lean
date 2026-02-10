@@ -15,6 +15,7 @@ set_option verso.exampleModule "AxiomsOfAdaptivity.Mesh"
 #doc (Manual) "Meshes" =>
 %%%
 htmlSplit := .never
+tag := "meshes"
 %%%
 
 At the core of the adaptive finite element method are

@@ -70,6 +70,9 @@ homogeneous Dirichlet boundary conditions $`u=0` on $`\partial\Omega` is the
 residual error estimator.
 
 # Adaptive Finite Element Method
+%%%
+tag := "afem_alg"
+%%%
 
 The adaptive finite element method (AFEM) concerns iterative algorithms
 that adaptively refine the current mesh in regions where the local error is
