@@ -51,13 +51,12 @@ def ρ_est δ := (1+δ) * (1 - (1 - alg.ρ_red) * alg.θ)
 noncomputable def C_est δ := alg.C_red + (1 + δ⁻¹) * alg.C_stab ^ 2
 ```
 
-Then, the statement we want to prove is
+Then, the Lean statement we want to prove is
 ```
-∀ δ > 0, (alg.ρ_est δ < 1) →
-  ∀ l,
-    alg.gη2_seq (l + 1)
-    ≤ alg.ρ_est δ * alg.gη2_seq l
-      + alg.C_est δ * alg.d (alg.𝒯 <| l + 1) (alg.U <| alg.𝒯 <| l+1) (alg.U <| alg.𝒯 <| l) ^ 2
+theorem estimator_reduction : ∀ δ > 0, (alg.ρ_est δ < 1) →
+    ∀ l, alg.gη2_seq (l + 1)
+         ≤ alg.ρ_est δ * alg.gη2_seq l
+           + alg.C_est δ * alg.d (alg.𝒯 <| l + 1) (alg.U <| alg.𝒯 <| l+1) (alg.U <| alg.𝒯 <| l) ^ 2 := by sorry
 ```
 
 # Utility lemmas

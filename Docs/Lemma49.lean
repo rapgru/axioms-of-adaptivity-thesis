@@ -37,6 +37,9 @@ It states
       $$`η(𝒯_{l+k}; U(𝒯_{l+k}))² ≤ C_5 ρ_1^k η(𝒯_l; U(𝒯_l))² \quad \text{for all } k, l ∈ ℕ_0.`
 
 # Formal statement
+%%%
+tag := "lem47_formal_statement"
+%%%
 
 While a sharp observer might immediately spot a missing assumption in this theorem,
 the author only did so after the Lean proof did not work out at some point, which

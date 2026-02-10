@@ -207,6 +207,11 @@ $$`∑_{k=ℓ}^{ℓ+n-1} \left(\mathbb{d}[𝒯_{k+1}; U(𝒯_{k+1}), U(𝒯_k)]^
     ≤ C_qo * gη2 η (𝒯 l) (U <| 𝒯 l)
 ```
 
+## Definitions for AdaptiveAlgorithm
+%%%
+tag := "adaptive_alg_defs"
+%%%
+
 Important additional definitions that appear throughout the formalization
 are the abbreviations for the term $`η^2(𝒯_l, U(𝒯_l))`.
 
