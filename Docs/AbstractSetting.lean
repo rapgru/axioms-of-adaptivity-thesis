@@ -15,8 +15,8 @@ set_option verso.exampleModule "AxiomsOfAdaptivity.Basics"
 htmlSplit := .never
 %%%
 
-In this chapter, we formalize the abstract setting from the paper
-_Axioms of adaptivity_{citep axioms}[], building on the mesh
+In this chapter, we formalize the abstract setting from the
+article *AoA*, building on the mesh
 definition from the previous chapter.
 
 The setting of *AoA* is that we want to approximate the solution of our
@@ -32,29 +32,31 @@ Before formalizing all *AoA* assumptions, we define a few convenient
 abbreviations regarding refinement indicators in Lean.
 
 We define the type abbreviation {anchorTerm RefinementIndicator}`RefinementIndicator`
-for a function that maps from a mesh, a element of the vector space and an element of the mesh
+for a function that maps from a mesh,
+an element of the vector space and an element of the mesh
 to a real number:
 ```anchor RefinementIndicator
 abbrev RefinementIndicator (α : Type*) [DecidableEq α] [Lattice α] [OrderBot α] (β : Type*) :=
   Mesh α → β → α → ℝ
 ```
 The idea is that an instance of this type should estimate for any mesh
-$`T` the local error on an element $`t∈T` for an approximation $`x ∈ 𝒳`
-to the actual solution.
+$`T` the local error an approximation $`x ∈ 𝒳`
+to the actual solution makes on an element $`t∈T`.
 
 In the following {anchorTerm beta}`β` will always be an arbitrary type.
 ```anchor beta
 variable {β : Type*}
 ```
 
-Based on a refinement indicator $`η` we can define the squared global error estimator $`η^2`
+Based on a refinement indicator {anchorTerm gη2}`ri` we can define
+the squared global error estimator $`η^2`
 as
 ```anchor gη2
 def gη2 (ri: RefinementIndicator α β) (triang: Mesh α) v :=
   ∑ t ∈ triang, (ri triang v t)^2
 ```
-The name {anchorTerm gη2}`gη2` has a `g` prefix to signify that this is the global
-error and a suffix `2` because it is the squared global error.
+The name {anchorTerm gη2}`gη2` has the prefix `g` to signify that this is the global
+error and the suffix `2` because it is the squared global error.
 
 # Adaptive Algorithm
 
@@ -67,7 +69,8 @@ via dot access notation.
 First, we define two helper functions for constants that are
 calculated from other constants.
 ```anchor AdaptiveAlgorithm_constfuns
-private noncomputable def ε_qos' (ρ_red C_rel C_red C_stab θ : ℝ) := ⨆ δ > 0, (1-(1+δ)*(1-(1-ρ_red)*θ)) / (C_rel^2 * (C_red + (1+δ⁻¹)*C_stab^2))
+private noncomputable def ε_qos' (ρ_red C_rel C_red C_stab θ : ℝ) :=
+  ⨆ δ > 0, (1-(1+δ)*(1-(1-ρ_red)*θ)) / (C_rel^2 * (C_red + (1+δ⁻¹)*C_stab^2))
 private def C_rel' (C_Δ C_drel : ℝ) := C_Δ * C_drel
 ```
 
@@ -169,7 +172,7 @@ for all $`T' ≤ T`, $`S ⊆ T ∩ T'` and $`v,v' ∈ 𝒳`.
 ```
 
 Reduction (A2) requires that for constants $`0 < ρ_{red} < 1` and $`C_{red} > 0`
-$$`∑_{t ∈ T' \setminus T} η_t(T'; U(T'))^2 ≤ ρ_{red} ∑_{t ∈ T \setminus T'} η_t(T; U(T))^2 + C_{red} \mathbb{d}[T'; U(T'), U(T)]^2`.
+$$`∑_{t ∈ T' \setminus T} η_t(T'; U(T'))^2 ≤ ρ_{red} ∑_{t ∈ T \setminus T'} η_t(T; U(T))^2 + C_{red} \mathbb{d}[T'; U(T'), U(T)]^2.`
 ```anchor AdaptiveAlgorithm_9
   -- A2: reduction property on refined elements --
   ρ_red : ℝ

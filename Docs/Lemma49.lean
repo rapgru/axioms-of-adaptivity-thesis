@@ -116,13 +116,12 @@ many implications between the statements are given.
 The full proof to the statement is
 ```anchor uniform_of_uniform_r_linear
 theorem summability_equivalence (ha : ∀ n, a n ≠ 0) :
-    List.TFAE [uniform_summability a, inverse_summability a, uniform_r_linear_convergence a] := by {
+    List.TFAE [uniform_summability a, inverse_summability a, uniform_r_linear_convergence a] := by
   tfae_have 1 → 3 := uniform_r_linear_of_uniform
   tfae_have 3 → 1 := uniform_of_uniform_r_linear
   tfae_have 3 → 2 := inverse_of_uniform_r_linear ha
   tfae_have 2 → 3 := uniform_r_linear_of_inverse ha
   tfae_finish
-}
 ```
 where the referenced proofs are the implications 1.) $`⇔` 3.) and 2.) $`⇔` 3.).
 This approach follows the proof in *AoA*.
@@ -172,7 +171,7 @@ step through the Lean proof and compare with the abriged version above.
 ```anchor uniform_recursive_bound
 lemma uniform_recursive_bound {C:NNReal} (hC : C > 0) (hSum: Summable (a ^ 2))
       (hBound : ∀ (l : ℕ), ∑' (k : ℕ), (a ^ 2) (k + l + 1) ≤ C * (a ^ 2) l):
-    ∀ l n, ∑' k, (a^2) (k + l + n) ≤ 1/(1+C⁻¹)^n *  ∑' k, (a^2) (k + l) := by {
+    ∀ l n, ∑' k, (a^2) (k + l + n) ≤ 1/(1+C⁻¹)^n *  ∑' k, (a^2) (k + l) := by
   intros l n
   induction' n with n ih
   · simp
@@ -187,7 +186,7 @@ lemma uniform_recursive_bound {C:NNReal} (hC : C > 0) (hSum: Summable (a ^ 2))
         + C⁻¹ * (C * (a^2) (l+n))) := by rel [hBound (l+n)]
     _ = 1/(1+C⁻¹) * (∑' (k : ℕ), (a ^ 2) (k + l + (n + 1)) + (a^2) (l+n)) := by field_simp
     _ = 1/(1+C⁻¹) * (∑' (k : ℕ), (a ^ 2) (k + (l + n) + 1) + (a^2) (l+n)) := by simp [add_assoc]
-    _ = 1/(1+C⁻¹) * (∑' (k : ℕ), (a ^ 2) (k + (l + n))) := by {
+    _ = 1/(1+C⁻¹) * (∑' (k : ℕ), (a ^ 2) (k + (l + n))) := by
       nth_rw 2 [NNReal.sum_add_tsum_nat_add 1]
       · simp [← add_assoc]
         nth_rw 3 [add_comm]
@@ -195,13 +194,11 @@ lemma uniform_recursive_bound {C:NNReal} (hC : C > 0) (hSum: Summable (a ^ 2))
         congr 3
         ring
       · exact (NNReal.summable_nat_add_iff (l + n)).mpr hSum
-    }
     _ = 1/(1+C⁻¹) * (∑' (k : ℕ), (a ^ 2) (k + l + n)) := by simp [add_assoc]
     _ ≤ 1/(1+C⁻¹) * (1 / (1 + C⁻¹) ^ n * ∑' (k : ℕ), (a ^ 2) (k + l)) := by rel [ih]
     _ = 1/(1+C⁻¹) * (1 / (1 + C⁻¹) ^ n) * ∑' (k : ℕ), (a ^ 2) (k + l) := by ring
     _ = 1/((1+C⁻¹) * (1 + C⁻¹)^n) * ∑' (k : ℕ), (a ^ 2) (k + l) := by field_simp
     _ = 1/(1 + C⁻¹)^(n+1) * ∑' (k : ℕ), (a ^ 2) (k + l) := by rw [pow_succ' (1 + C⁻¹)]
-}
 ```
 
 Now we can show uniform R-linear convergence with $`ρ_1 = 1/(1+C⁻¹)` and $`C_3 = 1+C`.
@@ -221,13 +218,13 @@ The Lean version follows exactly this idea, but the additional precision
 we need to have is very visible:
 ```anchor uniform_r_linear_of_uniform
 lemma uniform_r_linear_of_uniform (h : uniform_summability a) :
-    uniform_r_linear_convergence a := by {
+    uniform_r_linear_convergence a := by
   rcases h with ⟨hSum, C, hC, hBound⟩
 
   use 1/(1+C⁻¹)
   constructor
-  have h₁ : 1 < 1 + C⁻¹ := by simp [Right.inv_pos.mpr hC]
-  · constructor
+  · have h₁ : 1 < 1 + C⁻¹ := by simp [Right.inv_pos.mpr hC]
+    constructor
     · simp [one_div, inv_pos, h₁]
     · simp only [one_div]
       exact inv_lt_one_of_one_lt₀ h₁
@@ -240,22 +237,19 @@ lemma uniform_r_linear_of_uniform (h : uniform_summability a) :
   let g := fun j ↦ (a^2) (j + l + k)
   calc (a ^ 2) (l + k)
     _ = g 0 := by unfold g; simp only [Pi.pow_apply, zero_add]
-    _ ≤ ∑' j, (a^2) (j + l + k) := by {
+    _ ≤ ∑' j, (a^2) (j + l + k) := by
       apply Summable.le_tsum
       · unfold g
         simp only [add_assoc]
         apply NNReal.summable_nat_add _ hSum (l+k)
       · simp
-    }
     _ ≤ 1/(1 + C⁻¹)^k * ∑' (j : ℕ), (a ^ 2) (j + l) := by apply uniform_recursive_bound hC hSum hBound l k
-    _ = 1/(1 + C⁻¹)^k * (∑' (j : ℕ), (a ^ 2) (j + l + 1) + (a ^ 2) l) := by {
+    _ = 1/(1 + C⁻¹)^k * (∑' (j : ℕ), (a ^ 2) (j + l + 1) + (a ^ 2) l) := by
       rw [NNReal.sum_add_tsum_nat_add 1]
       simp [← add_assoc, add_comm]
       apply NNReal.summable_nat_add _ hSum l
-    }
     _ ≤ 1/(1 + C⁻¹)^k * (C * (a ^ 2) l + (a ^ 2) l) := by rel [hBound l]
     _ = (1 + C) * (1/(1 + C⁻¹))^k * (a ^ 2) l := by rw [← NNReal.coe_inj]; push_cast; ring
-}
 ```
 First, we give the constants and justify that they are within their respective bounds.
 Afterwards the proof is a `calc`-block that follows the mathematical proof.
@@ -278,7 +272,7 @@ bound. We will present the Lean proof interlaced with mathematical explanations.
 We start by establishing the assumptions and constants from uniform R-linear convergence
 ```anchor uniform_of_uniform_r_linear_1
 lemma uniform_of_uniform_r_linear (h : uniform_r_linear_convergence a) :
-    uniform_summability a := by {
+    uniform_summability a := by
   rcases h with ⟨q,hq,C,hC,h⟩
 ```
 Then we prove for all $`l,n∈ℕ` the bound
@@ -292,7 +286,7 @@ $$`
 `
 using exactly this calculation in a `have`-block:
 ```anchor uniform_of_uniform_r_linear_2
-  have : ∀ l n, ∑ k ∈ range n, (a^2) (k + l + 1) ≤ C * q * (1 - q)⁻¹ * (a^2) l := by {
+  have : ∀ l n, ∑ k ∈ range n, (a^2) (k + l + 1) ≤ C * q * (1 - q)⁻¹ * (a^2) l := by
     intros l n
     calc ∑ k ∈ range n, (a^2) (k + l + 1)
       _ ≤ ∑ k ∈ range n, C * q^(k + 1) * (a^2) l := by {
@@ -303,7 +297,7 @@ using exactly this calculation in a `have`-block:
       }
       _ = ∑ k ∈ range n, (C * q * (a^2) l) * q^k := by congr with _; ring_nf
       _ = C * q * (a^2) l * ∑ k ∈ range n, q^k := by rw [← mul_sum]
-      _ ≤ C * q * (a^2) l * ∑' k, q^k := by {
+      _ ≤ C * q * (a^2) l * ∑' k, q^k := by
         gcongr
 
         apply Summable.sum_le_tsum
@@ -311,15 +305,12 @@ using exactly this calculation in a `have`-block:
           exact pow_nonneg (le_of_lt hq.1) i
 
         exact NNReal.summable_coe.mp <| summable_geometric_of_lt_one (le_of_lt hq.1) hq.2
-      }
-      _ = C * q * (a^2) l * (1 - q)⁻¹ := by {
+      _ = C * q * (a^2) l * (1 - q)⁻¹ := by
         congr
         rw [← NNReal.coe_inj]
         push_cast [le_of_lt hq.2]
         exact tsum_geometric_of_lt_one (le_of_lt hq.1) hq.2
-      }
       _ = C * q * (1 - q)⁻¹ * (a^2) l := by ring
-  }
 ```
 In the first inquality we use uniform R-linear convergence and in
 the second one the convergence of the geometric series because $`q<1`.
@@ -370,11 +361,10 @@ that $`(a_n)` must be summable. This transfers to Lean as
 
     intros n
     calc ∑ i ∈ range n, (a ^ 2) i
-      _ ≤ ∑ i ∈ range (n+1), (a ^ 2) i := by {
+      _ ≤ ∑ i ∈ range (n+1), (a ^ 2) i := by
         apply sum_le_sum_of_subset_of_nonneg (range_subset.mpr (by simp)) ?_
         · intros
           apply sq_nonneg
-      }
       _ = ∑ i ∈ range n, (a ^ 2) (i + 1) + (a ^ 2) 0 := by simp [Finset.sum_range_succ']
       _ ≤ C * q * (1 - q)⁻¹ * (a ^ 2) 0 + (a ^ 2) 0 := by rel [this 0 n]
 ```

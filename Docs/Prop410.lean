@@ -20,7 +20,7 @@ This chapter formalizes the proof of Proposition 4.10 from *AoA* which reads as
 
 > *Proposition 4.10*: Assuming estimator reduction
   $$`
-  η(𝓣_{ℓ+1}; U(𝓣_{ℓ+1}))² ≤ ρ_{est} η(𝓣_ℓ; U(𝓣_ℓ))² + C_{est} 𝕕[𝓣_{ℓ+1}; U(𝓣_{ℓ+1}), U(𝓣_ℓ)]².
+  η(𝒯_{l+1}; U(𝒯_{l+1}))² ≤ ρ_{est} η(𝒯_l; U(𝒯_l))² + C_{est} 𝕕[𝒯_{l+1}; U(𝒯_{l+1}), U(𝒯_l)]².
   `
   and reliability, general quasi-orthogonality (A3) implies the summability statements
   1. _Uniform summability_: There exists a constant $`C_3 > 0` such that
@@ -78,13 +78,12 @@ lemma ε_qo_lt_est_consts :
 A small and technical lemma that is used multiple times in the proof is
 {anchorTerm cancel}`cancel`:
 ```anchor cancel
-lemma cancel {δ a} (hδ : δ > 0) : a * (alg.C_rel^2 * alg.C_est δ / (alg.C_rel^2 * alg.C_est δ)) = a := by {
+lemma cancel {δ a} (hδ : δ > 0) : a * (alg.C_rel^2 * alg.C_est δ / (alg.C_rel^2 * alg.C_est δ)) = a := by
   apply mul_right_eq_self₀.mpr
   left
   apply EuclideanDomain.div_self
   apply ne_of_gt
   exact alg.C_rel_mul_C_est_pos hδ
-}
 ```
 
 ## Main Proof
@@ -110,32 +109,27 @@ with our choice of $`δ`.
 
 In Lean we do exactly that to start the proof
 ```anchor summability_1
-theorem summability : uniform_summability alg.nn_gη_seq := by {
+theorem summability : uniform_summability alg.nn_gη_seq := by
   rcases alg.ε_qo_lt_est_consts with ⟨δ, hδ, hε_qo, hρ_est⟩
   -- TODO clean up the lt_est_consts lemma !!
 
   let v := alg.ε_qo * alg.C_rel^2 * alg.C_est δ
-  have hv₁ : v < 1 - alg.ρ_est δ := by {
-    calc v
+  have hv₁ : v < 1 - alg.ρ_est δ := calc
       _ = alg.ε_qo * alg.C_rel^2 * alg.C_est δ := by rfl
-      _ < (1 - alg.ρ_est δ) / (alg.C_rel^2 * alg.C_est δ) * alg.C_rel^2 * alg.C_est δ := by {
+      _ < (1 - alg.ρ_est δ) / (alg.C_rel^2 * alg.C_est δ) * alg.C_rel^2 * alg.C_est δ := by
         gcongr
         · exact alg.C_est_pos hδ
         · exact pow_pos alg.hC_rel 2
-      }
-      _ = (1 - alg.ρ_est δ) * (alg.C_rel^2 * alg.C_est δ / (alg.C_rel^2 * alg.C_est δ)) := by {
+      _ = (1 - alg.ρ_est δ) * (alg.C_rel^2 * alg.C_est δ / (alg.C_rel^2 * alg.C_est δ)) := by
         field_simp
         rw [mul_assoc]
-      }
-      _ = 1 - alg.ρ_est δ := by {
-        exact cancel alg hδ
-      }
-  }
-  have hv₂ : 0 ≤ v := by {
+      _ = 1 - alg.ρ_est δ := cancel alg hδ
+
+  have hv₂ : 0 ≤ v := by
     simp [v, mul_assoc]
     apply Left.mul_nonneg alg.hε_qo.1
     exact le_of_lt <| alg.C_rel_mul_C_est_pos hδ
-  }
+
 ```
 
 The first step is to show
@@ -170,11 +164,14 @@ In the Lean proof we continue with this chain of reasoning:
     intros N l
     calc ∑ k ∈ range N, alg.gη2_seq (k + l + 1)
       _ ≤ ∑ k ∈ range N, (alg.ρ_est δ * alg.gη2_seq (k + l)
-          + alg.C_est δ * d_seq alg (k + l)^2) := by {
+          + alg.C_est δ * d_seq alg (k + l)^2) := by
         gcongr with k hk
         exact alg.estimator_reduction δ hδ hρ_est (k+l)
-      }
-      _ = ∑ k ∈ range N, ((alg.ρ_est δ + v) * alg.gη2_seq (k + l) + alg.C_est δ * (d_seq alg (k + l)^2 - v * (alg.C_est δ)⁻¹ * alg.gη2_seq (k + l))) := by {
+      _ = ∑ k ∈ range N, (
+            (alg.ρ_est δ + v) * alg.gη2_seq (k + l)
+            + alg.C_est δ * (d_seq alg (k + l)^2
+            - v * (alg.C_est δ)⁻¹ * alg.gη2_seq (k + l))
+          ) := by
         congr
         funext k
         rw [add_mul, mul_sub]
@@ -188,8 +185,13 @@ In the Lean proof we continue with this chain of reasoning:
               _ = v := by rw [mul_inv_cancel₀ <| ne_of_gt <| alg.C_est_pos hδ, one_mul]
 
         ring
-      }
-      _ ≤ ∑ k ∈ range N, ((alg.ρ_est δ + v) * alg.gη2_seq (k + l) + alg.C_est δ * (d_seq alg (k + l)^2 - v * (alg.C_est δ)⁻¹ * (alg.C_rel⁻¹ * alg.d (alg.𝒯 <| k + l) alg.u (alg.U <| alg.𝒯 <| k + l))^2)) := by {
+      _ ≤ ∑ k ∈ range N, (
+            (alg.ρ_est δ + v) * alg.gη2_seq (k + l)
+            + alg.C_est δ * (
+              d_seq alg (k + l)^2
+              - v * (alg.C_est δ)⁻¹ * (alg.C_rel⁻¹ * alg.d (alg.𝒯 <| k + l) alg.u (alg.U <| alg.𝒯 <| k + l))^2
+            )
+          ) := by
         gcongr with k hk
         · exact le_of_lt <| alg.C_est_pos hδ
         · refine mul_nonneg hv₂ ?_
@@ -210,30 +212,42 @@ In the Lean proof we continue with this chain of reasoning:
               rw [← mul_assoc, ← mul_pow, inv_mul_cancel₀ <| ne_of_gt <| alg.hC_rel]
               simp
             }
-      }
-      _ = ∑ k ∈ range N, ((alg.ρ_est δ + v) * alg.gη2_seq (k + l) + alg.C_est δ * (d_seq alg (k + l)^2 - v / (alg.C_rel^2 * alg.C_est δ) * (alg.d (alg.𝒯 <| k + l) alg.u (alg.U <| alg.𝒯 <| k + l))^2)) := by {
+      _ = ∑ k ∈ range N, (
+            (alg.ρ_est δ + v) * alg.gη2_seq (k + l)
+            + alg.C_est δ * (
+              d_seq alg (k + l)^2
+              - v / (alg.C_rel^2 * alg.C_est δ) * (alg.d (alg.𝒯 <| k + l) alg.u (alg.U <| alg.𝒯 <| k + l))^2
+            )
+          ) := by
         field_simp
         rw [mul_comm]
-      }
-      _ = ∑ k ∈ range N, ((alg.ρ_est δ + v) * alg.gη2_seq (k + l) + alg.C_est δ * (d_seq alg (k + l)^2 - alg.ε_qo * alg.d (alg.𝒯 <| k + l) alg.u (alg.U <| alg.𝒯 <| k + l)^2)) := by {
+      _ = ∑ k ∈ range N, (
+            (alg.ρ_est δ + v) * alg.gη2_seq (k + l)
+            + alg.C_est δ * (
+              d_seq alg (k + l)^2
+              - alg.ε_qo * alg.d (alg.𝒯 <| k + l) alg.u (alg.U <| alg.𝒯 <| k + l)^2
+            )
+          ) := by
         dsimp [v]
         rw [mul_assoc, EuclideanDomain.mul_div_assoc, cancel alg hδ]
         · exact dvd_of_eq rfl
-      }
-      _ = ∑ k ∈ range N, (alg.ρ_est δ + v) * alg.gη2_seq (k + l) + alg.C_est δ * ∑ k ∈ range N, (d_seq alg (k + l)^2 - alg.ε_qo * alg.d (alg.𝒯 <| k + l) alg.u (alg.U <| alg.𝒯 <| k + l)^2) := by {
+      _ = ∑ k ∈ range N, (alg.ρ_est δ + v) * alg.gη2_seq (k + l)
+          + alg.C_est δ * ∑ k ∈ range N, (
+              d_seq alg (k + l)^2
+              - alg.ε_qo * alg.d (alg.𝒯 <| k + l) alg.u (alg.U <| alg.𝒯 <| k + l)^2
+            ) := by
         rw [Finset.sum_add_distrib]
         conv =>
           lhs
           rhs
           rw [← Finset.mul_sum]
-      }
-      _ ≤ ∑ k ∈ range N, (alg.ρ_est δ + v) * alg.gη2_seq (k + l) + alg.C_est δ * alg.C_qo * alg.gη2_seq l := by {
+      _ ≤ ∑ k ∈ range N, (alg.ρ_est δ + v) * alg.gη2_seq (k + l)
+          + alg.C_est δ * alg.C_qo * alg.gη2_seq l := by
         unfold d_seq
         have := alg.a3 l N
         apply add_le_add (by simp)
         rw [mul_assoc]
         exact (mul_le_mul_left <| alg.C_est_pos hδ).mpr this
-      }
   }
 ```
 
@@ -266,7 +280,7 @@ translates to the following section
     intros N l
     calc (1-(alg.ρ_est δ + v)) * ∑ k ∈ range N, alg.gη2_seq (k + l + 1)
       _ = (1-(alg.ρ_est δ + v)) * (∑ k ∈ range N, alg.gη2_seq (k + l + 1) + alg.gη2_seq l - alg.gη2_seq l) := by ring
-      _ = (1-(alg.ρ_est δ + v)) * (∑ k ∈ range (N + 1), alg.gη2_seq (k + l) - alg.gη2_seq l) := by {
+      _ = (1-(alg.ρ_est δ + v)) * (∑ k ∈ range (N + 1), alg.gη2_seq (k + l) - alg.gη2_seq l) := by
         congr
         rw [Finset.sum_range_succ']
         conv =>
@@ -276,39 +290,31 @@ translates to the following section
             intro k
             rw [Nat.add_right_comm]
           · simp
-      }
       _ = (1-(alg.ρ_est δ + v)) * ∑ k ∈ range (N + 1), alg.gη2_seq (k + l)
           - (1-(alg.ρ_est δ + v)) * alg.gη2_seq l := by ring
-      _ = (1-(alg.ρ_est δ + v)) * (∑ k ∈ range N, alg.gη2_seq (k + l) + alg.gη2_seq (N + l)) - (1-(alg.ρ_est δ + v)) * alg.gη2_seq l := by {
-        rw [Finset.sum_range_succ]
-      }
+      _ = (1-(alg.ρ_est δ + v)) * (∑ k ∈ range N, alg.gη2_seq (k + l)+ alg.gη2_seq (N + l))
+          - (1-(alg.ρ_est δ + v)) * alg.gη2_seq l := by rw [Finset.sum_range_succ]
       _ ≤ (1-(alg.ρ_est δ + v)) * ∑ k ∈ range N, alg.gη2_seq (k + l)
           + alg.gη2_seq (N + l)
-          - (1-(alg.ρ_est δ + v)) * alg.gη2_seq l := by {
+          - (1-(alg.ρ_est δ + v)) * alg.gη2_seq l := by
         rw [mul_add]
         gcongr
         apply mul_le_of_le_one_left
         · exact alg.gη2_seq_nonneg _
         · rw [← sub_sub]
           linarith [hv₁, hv₂, alg.ρ_est_pos hδ]
-      }
       _ = ∑ k ∈ range N, alg.gη2_seq (k + l)
           - (alg.ρ_est δ + v) * ∑ k ∈ range N, alg.gη2_seq (k + l)
           + alg.gη2_seq (N + l)
           - alg.gη2_seq l
-          + (alg.ρ_est δ + v) * alg.gη2_seq l := by {
-        simp [sub_mul, one_mul, sub_add]
-      }
+          + (alg.ρ_est δ + v) * alg.gη2_seq l := by simp [sub_mul, one_mul, sub_add]
       _ = ∑ k ∈ range (N+1), alg.gη2_seq (k + l)
           - (alg.ρ_est δ + v) * ∑ k ∈ range N, alg.gη2_seq (k + l)
           - alg.gη2_seq l
-          + (alg.ρ_est δ + v) * alg.gη2_seq l := by {
-        rw [Finset.sum_range_succ]
-        ring
-      }
+          + (alg.ρ_est δ + v) * alg.gη2_seq l := by rw [Finset.sum_range_succ]; ring
       _ = ∑ k ∈ range N, alg.gη2_seq (k + l + 1)
           - (alg.ρ_est δ + v) * ∑ k ∈ range N, alg.gη2_seq (k + l)
-          + (alg.ρ_est δ + v) * alg.gη2_seq l := by {
+          + (alg.ρ_est δ + v) * alg.gη2_seq l := by
         rw [Finset.sum_range_succ']
         conv =>
           enter [1,1,1,1]
@@ -318,17 +324,12 @@ translates to the following section
             rw [Nat.add_right_comm]
           · simp
         ring
-      }
       _ ≤ ∑ k ∈ range N, (alg.ρ_est δ + v) * alg.gη2_seq (k + l)
           + alg.C_est δ * alg.C_qo * alg.gη2_seq l
           - (alg.ρ_est δ + v) * ∑ k ∈ range N, alg.gη2_seq (k + l)
-          + (alg.ρ_est δ + v) * alg.gη2_seq l := by {
-        rel [this N l]
-      }
-      _ = alg.C_est δ * alg.C_qo * alg.gη2_seq l + (alg.ρ_est δ + v) * alg.gη2_seq l := by {
-        rw [Finset.mul_sum]
-        ring
-      }
+          + (alg.ρ_est δ + v) * alg.gη2_seq l := by rel [this N l]
+      _ = alg.C_est δ * alg.C_qo * alg.gη2_seq l
+          + (alg.ρ_est δ + v) * alg.gη2_seq l := by rw [Finset.mul_sum]; ring
       _ = (alg.C_est δ * alg.C_qo + alg.ρ_est δ + v) * alg.gη2_seq l := by ring
   }
 ```
@@ -344,7 +345,7 @@ In Lean we prove this as the key observation
 ```anchor summability_4
   let C := (alg.C_est δ * alg.C_qo + alg.ρ_est δ + v)/(1-(alg.ρ_est δ + v))
 
-  have key : ∀ N l:ℕ, ∑ k ∈ range N, alg.gη2_seq (k + l + 1) ≤ C * alg.gη2_seq l := by {
+  have key : ∀ N l:ℕ, ∑ k ∈ range N, alg.gη2_seq (k + l + 1) ≤ C * alg.gη2_seq l := by
     intros N l
     unfold C
     rw [div_mul_eq_mul_div₀]
@@ -352,13 +353,12 @@ In Lean we prove this as the key observation
     · rw [mul_comm]
       apply this
     · linarith [hv₁]
-  }
 ```
 
 Because the upper bound is independent of $`n` we also have summability of
 $`(η_n)`:
 ```anchor summability_5
-  have summable : Summable alg.gη2_seq := by {
+  have summable : Summable alg.gη2_seq := by
     apply (summable_nat_add_iff 1).mp
     apply summable_of_sum_range_le
     · intros n
@@ -366,7 +366,6 @@ $`(η_n)`:
 
     have := fun N ↦ key N 0
     simpa using this
-  }
 ```
 
 Now mathematically the proof is finished, we have uniform summability of $`(η_n)`.
@@ -387,7 +386,7 @@ Also a proof of $`C > 0` is necessary.
       simp
       rw [alg.hnn_gη_seq n]
     exact summable
-  · have C_pos : C > 0 := by {
+  · have C_pos : C > 0 := by
       refine (lt_div_iff₀' ?_).mpr ?_
       · linarith [hv₁]
       · simp only [mul_zero]
@@ -395,12 +394,10 @@ Also a proof of $`C > 0` is necessary.
         refine add_pos ?_ <| alg.ρ_est_pos hδ
         apply mul_pos (alg.C_est_pos hδ)
         linarith [alg.hC_qo]
-    }
 
-    have C_cast : ↑C.toNNReal = C := by {
+    have C_cast : ↑C.toNNReal = C := by
       rw [Real.coe_toNNReal]
       exact le_of_lt C_pos
-    }
 
     use C.toNNReal
     refine ⟨Real.toNNReal_pos.mpr C_pos, ?_⟩
@@ -418,7 +415,6 @@ Also a proof of $`C > 0` is necessary.
     refine Real.tsum_le_of_sum_range_le ?_ fun n ↦ key n l
     intros n
     apply alg.gη2_seq_nonneg
-}
 ```
 The `constructor` makes us first show summability of
 {anchorTerm summability_6}`alg.gη2_seq_nonneg`

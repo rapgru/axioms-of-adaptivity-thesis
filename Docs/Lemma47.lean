@@ -20,7 +20,7 @@ tag := "estimator_reduction"
 This chapter formalizes the proof of Lemma 4.7 from *AoA* which reads as
 
 > *Lemma 4.7*: Stability (A1) and Reduction (A2) imply the estimator reduction
-  $$`η(𝓣_{ℓ+1}; U(𝓣_{ℓ+1}))² ≤ ρ_{est} η(𝓣_ℓ; U(𝓣_ℓ))² + C_{est} 𝕕[𝓣_{ℓ+1}; U(𝓣_{ℓ+1}), U(𝓣_ℓ)]²`
+  $$`η(\mathcal{T}_{ℓ+1}; U(\mathcal{T}_{ℓ+1}))² ≤ ρ_{est} η(\mathcal{T}_ℓ; U(\mathcal{T}_ℓ))² + C_{est} 𝕕[\mathcal{T}_{ℓ+1}; U(\mathcal{T}_{ℓ+1}), U(\mathcal{T}_ℓ)]²`
   for all $`ℓ ∈ ℕ_0` with the constants $`0 < ρ_{est} < 1` and $`C_{est} > 0` which
   relate via
   $$`ρ_{est} = (1 + δ)(1 - (1 - ρ_{red})θ) \quad \text{and} \quad C_{est} = C_{red} + (1 + δ⁻¹)C_{stab}²`
@@ -81,16 +81,14 @@ we add non-negative summands. In Lean the proof reads as
 ```anchor doerfler_for_refined_elements
 lemma doerfler_for_refined_elements :
     ∀ l, alg.θ * gη2_seq alg l
-      ≤ ∑ t ∈ (alg.𝒯 l \ alg.𝒯 (l+1)), alg.η (alg.𝒯 l) (alg.U <| alg.𝒯 l) t ^ 2 := by {
+      ≤ ∑ t ∈ (alg.𝒯 l \ alg.𝒯 (l+1)), alg.η (alg.𝒯 l) (alg.U <| alg.𝒯 l) t ^ 2 := by
   intros l
   calc alg.θ * gη2_seq alg l
     _ ≤ ∑ t ∈ alg.ℳ l, alg.η (alg.𝒯 l) (alg.U <| alg.𝒯 l) t ^ 2 := by exact (alg.hℳ l).2.1
-    _ ≤ ∑ t ∈ (alg.𝒯 l \ alg.𝒯 (l+1)), alg.η (alg.𝒯 l) (alg.U <| alg.𝒯 l) t ^ 2 := by {
+    _ ≤ ∑ t ∈ (alg.𝒯 l \ alg.𝒯 (l+1)), alg.η (alg.𝒯 l) (alg.U <| alg.𝒯 l) t ^ 2 := by
       apply Finset.sum_le_sum_of_subset_of_nonneg
       · exact (alg.hℳ l).1
       · exact fun _ _ _ ↦ sq_nonneg _
-    }
-}
 ```
 
 ## Estimate on Square of a Sum
@@ -202,7 +200,7 @@ terms that appear in the proof and are lenghty to write.
 theorem estimator_reduction : ∀ δ > 0, (alg.ρ_est δ < 1) →
     ∀ l, alg.gη2_seq (l + 1)
          ≤ alg.ρ_est δ * alg.gη2_seq l
-           + alg.C_est δ * alg.d (alg.𝒯 <| l + 1) (alg.U <| alg.𝒯 <| l+1) (alg.U <| alg.𝒯 <| l) ^ 2 := by {
+           + alg.C_est δ * alg.d (alg.𝒯 <| l + 1) (alg.U <| alg.𝒯 <| l+1) (alg.U <| alg.𝒯 <| l) ^ 2 := by
   intros δ hδ hρ_est l
 
   let summand n t := alg.η (alg.𝒯 n) (alg.U <| alg.𝒯 <| n) t ^ 2
@@ -228,15 +226,11 @@ mathlib:
 ```anchor estimator_reduction_2
   calc gη2_seq alg (l + 1)
     _ = ∑ t ∈ alg.𝒯 (l + 1) \ alg.𝒯 l, summand (l+1) t
-        + ∑ t ∈ alg.𝒯 l ∩ alg.𝒯 (l+1), summand (l+1) t := by {
+        + ∑ t ∈ alg.𝒯 l ∩ alg.𝒯 (l+1), summand (l+1) t := by
       unfold gη2_seq gη2
-      have h_eq : (alg.𝒯 (l + 1)).val = (↑(alg.𝒯 (l + 1)) \ ↑(alg.𝒯 l)) ∪ (↑(alg.𝒯 (l + 1)) ∩ ↑(alg.𝒯 l)) := by {
-        exact Eq.symm (sdiff_union_inter _ _)
-      }
-      nth_rw 1 [h_eq]
+      nth_rw 1 [Eq.symm (sdiff_union_inter (alg.𝒯 (l + 1)).val _)]
       simp [sum_union (disjoint_sdiff_inter _ _)]
       nth_rw 1 [inter_comm]
-    }
 ```
 
 Next, we apply the reduction property on refined elements (A2) to reach
@@ -276,7 +270,7 @@ two utility lemmas from above. The Lean proof for this step reads as
     _ ≤ alg.ρ_red * ∑ t ∈ alg.𝒯 l \ alg.𝒯 (l + 1), summand l t
         + alg.C_red * distance l
         + ((1 + δ) * ∑ t ∈ alg.𝒯 l ∩ alg.𝒯 (l + 1), summand l t
-        + (1 + δ⁻¹) * (alg.C_stab ^ 2 * distance l)) := by {
+        + (1 + δ⁻¹) * (alg.C_stab ^ 2 * distance l)) := by
       have := alg.a1
         (alg.𝒯 l)
         (alg.𝒯 <| l + 1)
@@ -286,10 +280,9 @@ two utility lemmas from above. The Lean proof for this step reads as
         (alg.U <| alg.𝒯 <| l)
         (alg.U <| alg.𝒯 <| l + 1)
       have := square_estimate_of_small_distance (Real.sqrt_nonneg _) this
-      have h₁ : 0 ≤ alg.C_stab * alg.d (alg.𝒯 (l + 1)) (alg.U (alg.𝒯 (l + 1))) (alg.U (alg.𝒯 l)) := by {
+      have h₁ : 0 ≤ alg.C_stab * alg.d (alg.𝒯 (l + 1)) (alg.U (alg.𝒯 (l + 1))) (alg.U (alg.𝒯 l)) := by
         apply mul_nonneg (le_of_lt alg.hC_stab)
         apply alg.non_neg
-      }
       have := le_trans this <| sum_square_le_square_sum (Real.sqrt_nonneg _) h₁ δ hδ
 
       rw [Real.sq_sqrt, Real.sq_sqrt, mul_pow] at this
@@ -298,7 +291,6 @@ two utility lemmas from above. The Lean proof for this step reads as
           + (1 + δ⁻¹) * (alg.C_stab ^ 2 * distance l) at this
         rel [this]
       all_goals apply_rules [sum_nonneg', fun _ ↦ sq_nonneg _]
-    }
 ```
 Here we use the `change` tactic in order to switch to an equivalent type for hypotheses
 {anchorTerm estimator_reduction_4}`this` in order for the `rel` tactic to suceed in
@@ -331,17 +323,12 @@ The Lean proof is similar to the first step we did:
 ```anchor estimator_reduction_6
     _ = alg.ρ_red * ∑ t ∈ alg.𝒯 l \ alg.𝒯 (l+1), summand l t
         + (1+δ) * (gη2_seq alg l -  ∑ t ∈ alg.𝒯 l \ alg.𝒯 (l+1), summand l t)
-        + (alg.C_red + (1 + δ⁻¹) * alg.C_stab ^ 2) * distance l := by {
+        + (alg.C_red + (1 + δ⁻¹) * alg.C_stab ^ 2) * distance l := by
       congr
-      have h_eq : (alg.𝒯 l).val = (↑(alg.𝒯 l) \ ↑(alg.𝒯 (l + 1))) ∪ (↑(alg.𝒯 l) ∩ ↑(alg.𝒯 (l+1))) := by exact Eq.symm (sdiff_union_inter _ _)
-      have h_dis: Disjoint ((alg.𝒯 l : Finset α) \ alg.𝒯 (l + 1)) (alg.𝒯 l ∩ alg.𝒯 (l+1)) := by {
-        exact disjoint_sdiff_inter _ _
-      }
       unfold gη2_seq gη2
-      nth_rw 2 [h_eq]
+      nth_rw 2 [Eq.symm (sdiff_union_inter (alg.𝒯 l).val _)]
       rw [sum_union (disjoint_sdiff_inter _  _)]
       ring
-    }
 ```
 The essential tool here
 is {anchorTerm estimator_reduction_6}`sum_union` from mathlib. Also
@@ -364,12 +351,11 @@ This is done rather easily in Lean using `gcongr` again:
 ```anchor estimator_reduction_7
     _ ≤ (1+δ) * alg.ρ_red * ∑ t ∈ alg.𝒯 l \ alg.𝒯 (l+1), summand l t
         + (1+δ) * (gη2_seq alg l - ∑ t ∈ alg.𝒯 l \ alg.𝒯 (l+1), summand l t)
-        + (alg.C_red + (1 + δ⁻¹) * alg.C_stab ^ 2) * distance l := by {
+        + (alg.C_red + (1 + δ⁻¹) * alg.C_stab ^ 2) * distance l := by
       gcongr
       refine (le_mul_iff_one_le_left ?_).mpr ?_
       · exact alg.hρ_red.1
       · linarith
-    }
 ```
 
 The last steps are basic algebra and one application of the
@@ -393,10 +379,9 @@ It carries over to Lean very nicely:
     _ = (1+δ) * (gη2_seq alg l - (1-alg.ρ_red) * ∑ t ∈ alg.𝒯 l \ alg.𝒯 (l+1), summand l t)
         + (alg.C_red + (1 + δ⁻¹) * alg.C_stab ^ 2) * distance l := by ring
     _ ≤ (1+δ) * (gη2_seq alg l - (1-alg.ρ_red) * (alg.θ * gη2_seq alg l))
-        + (alg.C_red + (1 + δ⁻¹) * alg.C_stab ^ 2) * distance l := by {
+        + (alg.C_red + (1 + δ⁻¹) * alg.C_stab ^ 2) * distance l := by
       have h₁ : 0 ≤ 1 - alg.ρ_red := sub_nonneg_of_le <| le_of_lt alg.hρ_red.2
       rel[alg.doerfler_for_refined_elements l, h₁]
-    }
     _ = (1+δ) * (1 - (1-alg.ρ_red) * alg.θ) * gη2_seq alg l
         + (alg.C_red + (1 + δ⁻¹) * alg.C_stab ^ 2) * distance l := by ring
 ```

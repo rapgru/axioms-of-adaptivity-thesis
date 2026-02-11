@@ -7,45 +7,50 @@ open Docs
 
 set_option pp.rawOnError true
 
-#doc (Manual) "Adaptive Finite Element Methods" =>
+#doc (Manual) "Adaptive FEM" =>
 %%%
 htmlSplit := .never
 %%%
 
--- 2.) Um was geht es in dem Axioms Paper (Also grob, was ist adaptive FEM,
--- Definition aller Begriffe wie Fehlerschätzer, Meshes, exakte Lösung, usw).
--- Hier kannst du dich an mein FEM Skript und das Paper halten.
-
 The Adaptive Finite Element Method is an iterative approach for solving
-partial differential equations based on FEM.
-It uses a posteriori error estimators to guide a local mesh-refinement process.
+partial differential equations based on the Finite Element Method.
+It uses a-posteriori error estimators to guide a local mesh-refinement process.
 This allows to resolve local features of the solution more efficiently while
 keeping the overall degrees of freedom lower compared to uniform mesh refinement.
 In the following, we summarize the basic concepts of this method.
 
 # A Posteriori Error Estimators
 
-For this section, assume that we approximate the solution $`u` of a
+For this section, assume that we want to approximate the solution $`u` of a
 partial differential equation using the finite element method (in an appropriate
 function space $`X`). We will obtain discrete approximations $`u_{\mathcal{T}}`
 on a mesh $`\mathcal{T}`.
 
 A posteriori error estimators are computable quantities that estimate the error
 of a numerical solution to a partial differential equation. _Computable_ means
-that, in contrast to a priori error estimates, they do not use information about
+that, in contrast to a-priori error estimates, they do not use information about
 the exact solution $`u`, which is usually unknown in practical applications.
-In general, they depend on the discrete solution $`u_\mathcal{T}` and
+In general, they depend on the discrete solution $`u_\mathcal{T}` for the
+mesh $`\mathcal{T}` and
 possibly other input data to the problem such as the right-hand side $`f` of the PDE.
-So for the moment denote by $`\eta(u_\mathcal{T})` an posteriori error estimator.
-In a very strong sense, we want the error estimator $`\eta` to be _reliable_ and _efficient_.
 
-Reliability means that the error estimator bounds the actual error from above,
-i.e., there exists a constant $`C_{\mathrm{rel}} > 0` such that
-$$`\|u - u_{\mathcal{T}}\|_X \leq C_{\mathrm{rel}} \, \eta(u_{\mathcal{T}}).`
+For the moment lets denote by $`\eta(u_\mathcal{T})` an a-posteriori error estimator
+for discrete solutions $`u_\mathcal{T}`.
+In a very strong sense, we want the error estimator $`\eta` to be _reliable_ and _efficient_:
 
-Efficiency means that the error estimator also bounds the error from below,
-i.e., there exists a constant $`C_{\mathrm{eff}} > 0` such that
-$$`C_{\mathrm{eff}} \, \eta(u_{\mathcal{T}}) \leq \|u - u_{\mathcal{T}}\|_X .`
+: Reliability
+
+   means that the error estimator bounds the actual error from above,
+   i.e., there exists a constant $`C_{\mathrm{rel}} > 0` such that for all meshes
+   $`\mathcal{T}`
+   $$`\|u - u_{\mathcal{T}}\|_X \leq C_{\mathrm{rel}} \, \eta(u_{\mathcal{T}}).`
+
+: Efficiency
+
+   means that the error estimator also bounds the error from below,
+   i.e., there exists a constant $`C_{\mathrm{eff}} > 0` such that for all meshes
+   $`\mathcal{T}`
+   $$`C_{\mathrm{eff}} \, \eta(u_{\mathcal{T}}) \leq \|u - u_{\mathcal{T}}\|_X .`
 
 These two properties ensure that the error estimator is a good measure
 of the actual error. Reliability ensures that the computed solution is accurate
@@ -87,7 +92,7 @@ The general structure of an AFEM algorithm is as follows:
    2. Compute the local error indicators $`\eta_T(u_{\mathcal{T}_k})` for each element
       $`T \in \mathcal{T}_k` and the global error estimator $`\eta(u_{\mathcal{T}_k})`.
    3. Stop if the global error estimator is below a given threshold.
-   4. Choose the minimal set of elements $`\mathcal{M}_k \subseteq \mathcal{T}_k`
+   4. Choose a minimal set of elements $`\mathcal{M}_k \subseteq \mathcal{T}_k`
       such that
       $$`\left(\sum_{T \in \mathcal{M}_k} \eta_T^2(u_{\mathcal{T}_k})\right)^{1/2}
         \geq \theta \, \eta(u_{\mathcal{T}_k})`
@@ -101,7 +106,7 @@ Moreover, the convergence can be shown to be optimal in the sense that
 the error decreases at the best possible rate compared to any other mesh refinement
 strategy.
 
-The paper _Axioms of adaptivity_{citep axioms}[] states general
+The article *AoA* states general
 assumptions on the error estimator and refinement procedure that are sufficient
 to show quasi-optimal convergence of the AFEM algorithm.
 These axioms are formulated in an abstract setting and can be applied
@@ -118,17 +123,10 @@ is a solution on the interior of $`\Omega`.
 ![Solution](../static_files/afem/exact_solution.svg)
 However, it has a singularity
 at the re-entrant corner $`(0,0)` and thus is not in $`H^2(\Omega)`. We can
-expect errors to be larger near this corner when approximating $`u` using FEM.
+expect the error of the discrete solution
+to be large near this corner when approximating $`u` using FEM.
 
--- TODO do i want to go into details of convergence rates here?
--- Usually a-priori error estimates for the finite element method give
--- convergence rates based on the regularity of the solution. When $`h`
--- is the mesh size, standard estimates yield
--- $$`\|u - u_h\|_{H^1(\Omega)} \leq C h \|u\|_{H^2(\Omega)}.`
--- However since $`u \notin H^2(\Omega)`$, this estimate does not hold.
-
---TODO cite
-Using netgen and ngsolve we can perform adaptive mesh refinement
+Using [netgen and ngsolve](https://ngsolve.org) we can perform adaptive mesh refinement
 for this problem. Starting from an initial coarse mesh and using
 the trace of $`u` on the boundary as Dirichlet data, along
 with the residual error estimator and Dörfler marking with $`\theta = 0.25`,
@@ -141,3 +139,6 @@ local refinement indicators represented as colored patches on the elements.
 As expected, the mesh is refined more heavily near the re-entrant corner
 where the solution has a singularity. The algorithm used
 is exactly the loop from the previous section.
+By concentrating on the re-entrant corner we arrive at a better
+approximation of the solution than with uniform refinement using the same
+computational effort.

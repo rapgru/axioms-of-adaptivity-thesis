@@ -31,25 +31,25 @@ precisely define meshes and refinements in Lean, taking care to be as general
 as possible.
 
 We will present both a mathematically typeset definition and the Lean implementation
-of meshes for two reasons:
+of meshes. This has two reasons:
 - The definition of meshes is original to this formalization and
 cannot be looked up in *AoA* and
 - to highlight how the two versions translate.
 
-# Mathematical definition
+# Informal definition
 
-The idea for the definition is that a mesh consists of elements that form
+The idea is that a mesh consists of elements that form
 the problems domain when seen as a collection. So we want a mesh
-to be a finite set of "elements". In two dimensions
-triangles could be such "elements" making up a domain.
-Then the objective is to find an appropriate abstraction for the "elements"
+to be a finite set of "elements". In two dimensions such "elements"
+making up a domain could be triangles.
+The objective is to find an appropriate abstraction for the "elements"
 that make up a mesh.
 
 The natural first step is to assume that our elements are
 sets (usually subsets of $`ℝ^d`). As we will see
 intersection and union can be used to define a very intuitive refinement relation.
-The second step to our definition is to
-abstract away the concrete versions of the set operations and generalise using
+The second step we take is to
+abstract away the set operations and generalise using
 an arbitrary lattice structure (this choice is motivated
 by the Lean implemenetation, c.f. {ref "sets_vs_lattice"}[Sets vs. Lattice]).
 Taking these steps, the definition of a mesh reads as follows:
@@ -60,20 +60,20 @@ Taking these steps, the definition of a mesh reads as follows:
     $$`∀ s, t ∈ M, s ≠ t → s ⊓ t = ⊥ .`
   - The bottom element is not contained in $`M`, i.e. $`⊥ ∉ M`.
 
-Fix for the remaining section the lattice $`(X, ⊔, ⊓, ⊥)`. We go ahead and
+Fix for the remainder of the section the lattice $`(X, ⊔, ⊓, ⊥)`. We go ahead and
 define the partition relation as
 
 > *Definition (Partition):* A mesh $`M` _partitions_ an element $`t ∈ X` (denoted as $`M ↪ t`) iff
   $$`⨆_{m ∈ M} m = t.`
 
-And finally we can define the refimenent relation on all meshes as follows:
+Finally, we can define the refinement relation on all meshes as follows:
 
 > *Definition (Refinement):* Let $`A` and $`B` be two meshes. $`A` _refines_ $`B` (denoted as $`A≤B`) iff
   for any $`t ∈ B` there exists a mesh $`M ⊆ A` such that $`M ↪ t`.
 
 In other words, A is a refinement of B when every element of B can be
 constructed (in the $`⊔` sense) from elements of A.
-As we will see this definition will allow us to show that the set
+This definition will allow us to show that the set
 of all meshes in $`X` together with the refinement relation $`≤` forms
 a partial order.
 
@@ -81,7 +81,8 @@ a partial order.
 
 Now let's see how the definition translates to Lean. We will use
 the `Finset` type from Lean's mathlib4 to represent finite sets.
-Because finsets need a type for its elements, we need to fix a type $`α` and assume that it has the
+Because a `Finset` needs a type for its elements, we need to fix a type
+{anchorTerm alpha}`α` and assume that it has the
 lattice structure we need.
 
 ```anchor alpha
@@ -137,8 +138,8 @@ infer the type from the use of {anchorTerm partitions}`partitions`
 (confirm by hovering over {anchorTerm refines}`M`).
 
 We see that the mathematical definition translates
-to the Lean version pretty much directly. Especially with
-use of the mathematical special characters, the properties we defined
+to the Lean version pretty much directly. Using the mathematical special characters
+that Lean understands, the properties we defined
 are nearly identical to the definition from the previous section, just
 a bit more condensed.
 The only notable difference is that Lean revolves around types, while we used
@@ -166,33 +167,38 @@ we need the additional assumption `[DecidableEq α]` on {anchorTerm Mesh}`α`.
 The same is true for other proofs throughout the formalization.
 
 The reason behind this is that the `Finset` type is just a
-multiset with a proof that it does not contain duplicates.
-So for example the construction of a union $`A∪B` of two `Finset`s has to check
-the elements of $`A` and $`B` for duplicates. This check requires that the equality
-on {anchorTerm Mesh}`α` is decidable.
+multiset combined with a proof that it does not contain duplicates.
+So for example the construction of a union $`A∪B` of two `Finset`s requires to check
+the elements of $`A` and $`B` for duplicates. To carry out this check, equality
+on {anchorTerm Mesh}`α` has to be decidable.
 
-This is not the case for sets however because of the constructive nature of Lean.
-By default the axioms Lean is based on do not imply the law of excluded middle.
-So it is not guaranteed that for two arbitrary sets $`A, B` we can always
-find a proof of $`A = B` or $`A ≠ B`. Using, for example, the subsets of
-$`ℝ^d` as {anchorTerm Mesh}`α` would not give us the partial order result.
+Because of the constructive nature of Lean, (infinite) sets do not fulfil decidability
+equality.
+By default, the axioms Lean is based on do not imply the law of excluded middle.
+So it is not guaranteed that we can always
+find a proof of $`A = B` or $`A ≠ B` for two arbitrary sets $`A, B`.
+Using, e.g., the subsets of $`ℝ^d` as {anchorTerm Mesh}`α` would not
+give us the partial order result.
 
 Circumventing this problem is possible by switching to classical logic
 using the `open Classical` instruction. However, given that AFEM is
 an algorithmic method, it is preferable to stay in constructive logic
-where possible.
-To leave this choice open, we abstract away from sets and use an arbitrary lattice structure
-on {anchorTerm Mesh}`α`. This way we can assume that the operations we need are available and
+when possible.
+To leave this choice open, we abstract away from sets and use an arbitrary
+lattice structure
+on {anchorTerm Mesh}`α`. This way we can assume that the operations we need are
+available and
 just pose the decidability of equality on {anchorTerm Mesh}`α` as an assumption.
 
-Polygons that may be disconnected are an example of a lattice that
+Polygons are an example of a lattice that
 is bounded below when we include an "empty polygon". The intersection of
 two finite polygons is also a polygon and the same holds for the union, given
 that we allow disconnected polygons. It is a sublattice of the sets on $`ℝ^2`.
 This type can be implemented in a way such that equality is algorithmically
 decidable (e.g. by storing the points that make up the polygon).
 
-Because sets are a special case of a lattice, we can still use sets as {anchorTerm Mesh}`α` if we
+Because sets are a special case of a lattice, we can still use sets as
+the arbitrary lattice {anchorTerm Mesh}`α` if we
 want to. For example, we can define the mesh $`\{ℝ\}` on the subsets of $`ℝ`
 ```anchor Mesh_Set_Example
 def real_line_singleton_mesh : Mesh (Set ℝ) :=
@@ -210,7 +216,8 @@ supplying a proof that the set $`ℝ` is non-empty. The operations and theorems
 that need decidable equality can be used by adding the `open Classical` instruction:
 ```anchor Mesh_Classical
 open Classical
-noncomputable def example_union := real_line_singleton_mesh ∩ real_line_singleton_mesh
+noncomputable def example_union :=
+  real_line_singleton_mesh ∩ real_line_singleton_mesh
 ```
 Without the `open Classical` instruction that allows the law of excluded middle, we
 would get an error regarding the intersection operation being unable to decide

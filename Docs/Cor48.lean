@@ -14,6 +14,7 @@ set_option maxHeartbeats 20000000
 #doc (Manual) "Estimator Convergence" =>
 %%%
 htmlSplit := .never
+tag := "estimator_convergence"
 %%%
 
 This chapter formalizes the proof of Corollary 4.8 from *AoA* which states
@@ -24,7 +25,7 @@ This chapter formalizes the proof of Corollary 4.8 from *AoA* which states
   `
   and have estimator reduction (for example from {ref "estimator_reduction"}[Lemma 4.7])
   $$`
-  η(𝓣_{ℓ+1}; U(𝓣_{ℓ+1}))² ≤ ρ_{est} η(𝓣_ℓ; U(𝓣_ℓ))² + C_{est} 𝕕[𝓣_{ℓ+1}; U(𝓣_{ℓ+1}), U(𝓣_ℓ)]².
+  η(\mathcal{T}_{ℓ+1}; U(\mathcal{T}_{ℓ+1}))² ≤ ρ_{est} η(\mathcal{T}_ℓ; U(\mathcal{T}_ℓ))² + C_{est} 𝕕[\mathcal{T}_{ℓ+1}; U(\mathcal{T}_{ℓ+1}), U(\mathcal{T}_ℓ)]².
   `
   This implies the convergence of the estimator $`
   \lim_{l \to \infty} η^2(𝒯_l, U(𝒯_l)) = 0
@@ -148,7 +149,7 @@ more granular calculation steps. Doing everything at once requires
 surgical rewrites.
 ```anchor estimator_recursive_upper_bound
 lemma estimator_recursive_upper_bound (n : ℕ) :
-    (η (n+1))^2 ≤ h.upperBound n := by {
+    (η (n+1))^2 ≤ h.upperBound n := by
   induction' n with n ih
   · unfold upperBound weightedSum
     simp
@@ -156,15 +157,15 @@ lemma estimator_recursive_upper_bound (n : ℕ) :
   · calc  η (n + 1 + 1) ^ 2
       _ ≤ h.q * (η (n + 1))^2 + h.C * (d (n + 1))^2 := by apply h.bound
       _ ≤ h.q * h.upperBound n + h.C * (d (n + 1))^2 := by gcongr
-      _ = h.upperBound (n+1) := by {
+      _ = h.upperBound (n+1) := by
         unfold upperBound weightedSum
         nth_rw 2 [sum_range_succ]
-        rw [mul_add, ← mul_assoc, ← pow_succ', ← mul_assoc, mul_comm h.q h.C, mul_assoc, mul_sum, mul_add]
+        rw [mul_add, ← mul_assoc, ← pow_succ', ← mul_assoc,
+            mul_comm h.q h.C, mul_assoc, mul_sum, mul_add]
         rw [Finset.sum_congr rfl fun k hk => by
-          rw [← mul_assoc, ← pow_succ', ← Nat.sub_add_comm (mem_range_succ_iff.mp hk)]]
+          rw [← mul_assoc, ← pow_succ',
+              ← Nat.sub_add_comm (mem_range_succ_iff.mp hk)]]
         simp [pow_zero, add_assoc]
-      }
-}
 ```
 
 ### Upper Bound on Weighted Sum
@@ -191,55 +192,48 @@ The Lean proof uses the same steps, showing supporting results that can be used
 in rewrites first.
 ```anchor weighted_sum_bound
 lemma weighted_sum_bound (hd : BddAbove (Set.range d)) (n : ℕ):
-    h.weightedSum n ≤ (⨆ i, d i)^2 * (1/h.q) / (1/h.q - 1) := by {
+    h.weightedSum n ≤ (⨆ i, d i)^2 * (1/h.q) / (1/h.q - 1) := by
   let ⟨q, q_range, C, C_pos, bound⟩ := h
   unfold weightedSum
 
-  have hq₁ : 1/q ≥ 1 := by {
+  have hq₁ : 1/q ≥ 1 := by
     simp
     apply one_le_inv_iff₀.mpr
     exact ⟨q_range.1, le_of_lt q_range.2⟩
-  }
   have hq₂ : (1 / q) ^ (n + 1) ≥ 1 := one_le_pow₀ hq₁
 
-  have h₁ : ∀ k, d k ≤ (⨆ i, d i) := by {
+  have h₁ : ∀ k, d k ≤ (⨆ i, d i) := by
     intros k
     exact (le_ciSup_iff' hd).mpr fun b a ↦ a k
-  }
 
-  have h₂ : ∑ k ∈ (range (n + 1)), q^(n-k) = ∑ k ∈ (range (n + 1)), q^n/q^k := by {
+  have h₂ : ∑ k ∈ (range (n + 1)), q^(n-k) = ∑ k ∈ (range (n + 1)), q^n/q^k := by
     apply Finset.sum_congr rfl
     intros k hk
     rw [← NNReal.rpow_natCast]
     rw [Nat.cast_sub (mem_range_succ_iff.mp hk)]
     rw [NNReal.rpow_sub_natCast (ne_of_gt q_range.1)]
     simp
-  }
 
-  have h₃ : ∑ k ∈ range (n + 1), (1/q)^k = ((1/q)^(n+1) - 1)/(1/q - 1) := by {
+  have h₃ : ∑ k ∈ range (n + 1), (1/q)^k = ((1/q)^(n+1) - 1)/(1/q - 1) := by
     rw[← NNReal.coe_inj]
     push_cast [hq₁, hq₂]
     apply geom_sum_eq
     · simp [ne_of_lt q_range.2]
-  }
 
-  have h₄ : q^n * (1/q^(n+1) - 1)/(1/q - 1) = ((1/q) - q^n)/(1/q - 1) := by {
+  have h₄ : q^n * (1/q^(n+1) - 1)/(1/q - 1) = ((1/q) - q^n)/(1/q - 1) := by
     rw [mul_tsub, mul_one, one_div]
     group
     rw [← zpow_add₀ (ne_of_gt q_range.1)]
     simp
-  }
 
-  have h₅ : (1/q) - q^n ≤ 1/q := by {
-    have : q^n ≤ 1/q := by {
+  have h₅ : (1/q) - q^n ≤ 1/q := by
+    have : q^n ≤ 1/q := by
       trans 1
       · exact pow_le_one₀ (le_of_lt q_range.1) (le_of_lt q_range.2)
       · exact hq₁
-    }
     rw [← NNReal.coe_le_coe]
     push_cast [this]
     simp
-  }
 
   calc ∑ k ∈ (range (n + 1)), q^(n-k) * (d k)^2
     _ ≤ ∑ k ∈ (range (n + 1)), q^(n-k) * (⨆ i, d i)^2 := by gcongr; apply h₁
@@ -251,7 +245,6 @@ lemma weighted_sum_bound (hd : BddAbove (Set.range d)) (n : ℕ):
     _ = (⨆ i, d i)^2 * (q^n * (1/q^(n+1) - 1)/(1/q - 1)) := by rw [h₃]; field_simp [mul_assoc]
     _ = (⨆ i, d i)^2 * ((1/q) - q^n)/(1/q - 1) := by rw [h₄, ← mul_div_assoc']
     _ ≤ (⨆ i, d i)^2 * (1/q)/(1/q - 1) := by gcongr
-}
 ```
 In {anchorTerm weighted_sum_bound}`h₃` we use the geometric sum theorem from mathlib,
 which assumes more structure than `NNReal` has. Therefore we have to cast
@@ -294,7 +287,7 @@ $$`
 
 The Lean proof mirrors this argument:
 ```anchor estimator_bounded
-lemma estimator_bounded (hd : BddAbove (Set.range d)) : BddAbove (Set.range η) := by {
+lemma estimator_bounded (hd : BddAbove (Set.range d)) : BddAbove (Set.range η) := by
   let K := ((η 0)^2 + h.C * ((⨆ i, d i)^2 * (1/h.q)/(1/h.q - 1))) ⊔ ((η 0)^2)
   use NNReal.sqrt K
 
@@ -315,7 +308,7 @@ lemma estimator_bounded (hd : BddAbove (Set.range d)) : BddAbove (Set.range η) 
       _ ≤ h.upperBound (n-1) := by exact estimator_recursive_upper_bound h (n-1)
       _ = h.q^n * (η 0)^2 + h.C * h.weightedSum (n-1) := by {unfold upperBound; simp [this]}
       _ ≤ h.q^n * (η 0)^2 + h.C * ((⨆ i, d i)^2 * (1/h.q)/(1/h.q - 1)) := by rel [weighted_sum_bound h hd (n-1)]
-      _ ≤ (η 0)^2 + h.C * ((⨆ i, d i)^2 * (1/h.q)/(1/h.q - 1)) := by {
+      _ ≤ (η 0)^2 + h.C * ((⨆ i, d i)^2 * (1/h.q)/(1/h.q - 1)) := by
         gcongr
         by_cases hη : (η 0)^2 = 0
         case pos =>
@@ -324,9 +317,7 @@ lemma estimator_bounded (hd : BddAbove (Set.range d)) : BddAbove (Set.range η) 
           have : h.q^n ≤ 1 := pow_le_one' (le_of_lt h.q_range.2) n
           rw [← mul_le_mul_right (pos_of_ne_zero hη)] at this
           simpa using this
-      }
       _ ≤ K := by unfold K; apply le_max_left
-}
 ```
 
 ### Limsup of η is Zero
@@ -360,21 +351,20 @@ proofs.
 
 ```anchor estimator_limsup_zero
 lemma estimator_limsup_zero (hd : Tendsto d atTop (𝓝 0)) (hη₁ : BddAbove (Set.range η)) :
-    limsup (η^2) atTop = 0 := by {
+    limsup (η^2) atTop = 0 := by
   let ⟨q, q_range, C, C_pos, bound⟩ := h
 
   apply smaller_q_eq_zero _ q q_range.2
 
-  have hdc : Tendsto (C • d^2) atTop (𝓝 0) := by {
+  have hdc : Tendsto (C • d^2) atTop (𝓝 0) := by
     have := Filter.Tendsto.pow hd 2
     have := Filter.Tendsto.mul_const C this
     simpa [mul_comm] using this
-  }
 
   have hη₂ : BddAbove (Set.range (η^2)) := monotone_map_bdd_above_range (pow_left_mono 2) hη₁
   have hη₃ : BddAbove (Set.range (q • η^2)) := monotone_map_bdd_above_range mul_left_mono hη₂
 
-  have h₁ : limsup ((η^2) ∘ (· + 1)) atTop ≤ limsup (q • η^2 + C • d^2) atTop := by {
+  have h₁ : limsup ((η^2) ∘ (· + 1)) atTop ≤ limsup (q • η^2 + C • d^2) atTop := by
     apply Filter.limsup_le_limsup
     · exact Filter.Eventually.of_forall bound
     · apply Filter.IsBoundedUnder.isCoboundedUnder_le
@@ -382,9 +372,8 @@ lemma estimator_limsup_zero (hd : Tendsto d atTop (𝓝 0)) (hη₁ : BddAbove (
       apply nnreal_fun_bbd_below
     · apply BddAbove.isBoundedUnder_of_range
       apply BddAbove.range_add hη₃ <| Tendsto.bddAbove_range hdc
-  }
 
-  have h₂ : limsup (q • η^2 + C • d^2) atTop ≤ limsup (q • η^2) atTop + limsup (C • d^2) atTop := by {
+  have h₂ : limsup (q • η^2 + C • d^2) atTop ≤ limsup (q • η^2) atTop + limsup (C • d^2) atTop := by
     rw [← NNReal.coe_le_coe]
     push_cast [← NNReal.toReal_limsup]
 
@@ -397,7 +386,6 @@ lemma estimator_limsup_zero (hd : Tendsto d atTop (𝓝 0)) (hη₁ : BddAbove (
       exact Filter.IsBoundedUnder.isCoboundedUnder_le <| BddBelow.isBoundedUnder_of_range <| lift_bound_below _
     case cd_above =>
       exact BddAbove.isBoundedUnder_of_range <| lift_bound_above _ <| Tendsto.bddAbove_range hdc
-  }
 
   calc limsup (η^2) atTop
     _ = limsup (λ n ↦ (η (n+1))^2) atTop := by rw [← Filter.limsup_nat_add _ 1]; rfl
@@ -406,7 +394,6 @@ lemma estimator_limsup_zero (hd : Tendsto d atTop (𝓝 0)) (hη₁ : BddAbove (
     _ ≤ limsup (q • η^2) atTop + limsup (C • d^2) atTop := by exact h₂
     _ = limsup (q • η^2) atTop := by simp [Tendsto.limsup_eq hdc]
     _ = q * limsup (η^2) atTop := by exact nnreal_limsup_const_mul <| BddAbove.isBoundedUnder_of_range hη₂
-}
 ```
 The boundedness proofs are necessary to apply mathlib theorems about `limsup` and use the result
 from the {ref "boundedness_eta"}[previous section]. Also note that `•` is the pointwise
@@ -427,7 +414,7 @@ convergence, which means $`\lim_{n→∞} η_n = 0`.
 The Lean proof is totally analogous, again supplying additional boundedness
 proofs to unlock the analytical mathlib theorems
 ```anchor convergence_of_estimator_simple
-theorem convergence_of_estimator_simple (hd_lim : Tendsto d atTop (𝓝 0)) : Tendsto (η^2) atTop (𝓝 0) := by {
+theorem convergence_of_estimator_simple (hd_lim : Tendsto d atTop (𝓝 0)) : Tendsto (η^2) atTop (𝓝 0) := by
   let hd_above := Tendsto.bddAbove_range hd_lim
   let hη_above := estimator_bounded h hd_above
   have hη2_above := monotone_map_bdd_above_range (pow_left_mono 2) hη_above
@@ -444,7 +431,6 @@ theorem convergence_of_estimator_simple (hd_lim : Tendsto d atTop (𝓝 0)) : Te
   case hsup => exact hη_limsup
   case h => exact BddAbove.isBoundedUnder_of_range hη2_above
   case h' => exact BddBelow.isBoundedUnder_of_range hη2_below
-}
 ```
 Now we have reached the final conclusion of `SimpleEstimatorReduction`.
 
@@ -478,7 +464,7 @@ extra proofs:
 
 ```anchor convergence_of_estimator
 lemma convergence_of_estimator (hd_seq_lim : Tendsto (d_seq alg) atTop (𝓝 0)) :
-    Tendsto alg.gη2_seq atTop (𝓝 0) := by {
+    Tendsto alg.gη2_seq atTop (𝓝 0) := by
 
   -- first define the object we want to apply the simplified convergence
   -- theorem to
@@ -501,20 +487,17 @@ lemma convergence_of_estimator (hd_seq_lim : Tendsto (d_seq alg) atTop (𝓝 0))
       apply NNReal.coe_le_coe.mp
       push_cast
 
-      have hd : d n = d_seq alg n := by {
+      have hd : d n = d_seq alg n := by
         apply Real.coe_toNNReal
         apply alg.non_neg
-      }
 
-      have hq : ρ_est.toNNReal = ρ_est := by {
+      have hq : ρ_est.toNNReal = ρ_est := by
         apply Real.coe_toNNReal
         exact le_of_lt hρ_est.1
-      }
 
-      have hC : C_est.toNNReal = C_est := by {
+      have hC : C_est.toNNReal = C_est := by
         apply Real.coe_toNNReal
         exact le_of_lt hC_est
-      }
 
       simp only [alg.hnn_gη_seq, hd, hq, hC]
       unfold d_seq
@@ -522,10 +505,9 @@ lemma convergence_of_estimator (hd_seq_lim : Tendsto (d_seq alg) atTop (𝓝 0))
     }
   : SimpleEstimatorReduction alg.nn_gη_seq d}
 
-  have hd_lim : Tendsto d atTop (𝓝 0) := by {
+  have hd_lim : Tendsto d atTop (𝓝 0) := by
     rw [Eq.symm Real.toNNReal_zero]
     apply tendsto_real_toNNReal hd_seq_lim
-  }
 
   conv =>
     enter [1, n]
@@ -534,7 +516,6 @@ lemma convergence_of_estimator (hd_seq_lim : Tendsto (d_seq alg) atTop (𝓝 0))
   rw [← NNReal.coe_zero]
   apply NNReal.tendsto_coe.mpr
   exact est_red.convergence_of_estimator_simple hd_lim
-}
 ```
 The main point here is that we define the instance {anchorTerm convergence_of_estimator}`est_red`
 of type {anchorTerm convergence_of_estimator}`SimpleEstimatorReduction` and access its
@@ -554,7 +535,7 @@ This is translates nicely to a Lean proof using the {anchorTerm convergence_of_a
 theorem from mathlib.
 ```anchor convergence_of_apriori
 theorem convergence_of_apriori (hd_seq_lim : Tendsto (d_seq alg) atTop (𝓝 0)) :
-  Tendsto (fun n ↦ alg.d (alg.𝒯 <| n) alg.u (alg.U <| alg.𝒯 n)) atTop (𝓝 0) := by {
+  Tendsto (fun n ↦ alg.d (alg.𝒯 <| n) alg.u (alg.U <| alg.𝒯 n)) atTop (𝓝 0) := by
     have := Filter.Tendsto.sqrt (convergence_of_estimator alg hd_seq_lim)
     have := Filter.Tendsto.const_mul alg.C_rel this
     simp at this
@@ -563,6 +544,5 @@ theorem convergence_of_apriori (hd_seq_lim : Tendsto (d_seq alg) atTop (𝓝 0))
     · exact fun _ ↦ by apply alg.non_neg
     · intros t
       apply alg.reliability
-}
 ```
 This concludes the Lean proof of Corollary 4.8
