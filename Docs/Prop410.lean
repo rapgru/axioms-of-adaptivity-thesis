@@ -29,7 +29,7 @@ This chapter formalizes the proof of Proposition 4.10 from *AoA* which reads as
       $$`∑_{k=0}^{l-1} η(\mathcal{T}_k; U(\mathcal{T}_k))^{-1/s} ≤ C_4 η(\mathcal{T}_l; U(\mathcal{T}_l))^{-1/s} \quad \text{for all } l ∈ ℕ_0.`
   3. _Uniform R-linear convergence on any level_: There exist constants $`0 < ρ_1 < 1` and $`C_5 > 0` such that
       $$`η(\mathcal{T}_{l+k}; U(\mathcal{T}_{l+k}))² ≤ C_5 ρ_1^k η(\mathcal{T}_l; U(\mathcal{T}_l))² \quad \text{for all } k, l ∈ ℕ_0.`
-  where all constants $`C_3`, $`C_4`, $`C_5`, $`ρ_1` only depend on $`ρ_{est}`, $`C_{est}`, $`C_{qo}(ε_{qo})`, $`s`.
+  where all constants $`C_3`, $`C_4`, $`C_5`, $`ρ_1` only depend on $`ρ_{est}`, $`C_{est}`, $`C_{\mathrm{qo}}(ε_{qo})`, $`s`.
 
 From  {ref "summability_equivalence"}[Lemma 4.9] we already know that the summability
 statements are equivalent, so to prove this proposition we only need to show one of them.
@@ -53,15 +53,15 @@ the $`δ` parameter of the estimator reduction constants.
 Specifically we need $`δ > 0` such that
 $$`ρ_{est}(δ) < 1`
 and
-$$`ε_{qo} < \frac{1-ρ_{est}(δ)}{C_{rel}^2 C_{est}(δ)}.`
+$$`ε_{qo} < \frac{1-ρ_{est}(δ)}{C_{\mathrm{rel}}^2 C_{est}(δ)}.`
 
 Because
 $$`
-ε_{qo} < ε^*_{qo}(θ) \coloneqq \sup_{δ > 0} \frac{1-(1+δ)(1-(1-ρ_{red})θ)}{C_{rel}^2 (C_{red} + (1+δ⁻¹)C_{stab}^2)}
+ε_{qo} < ε^*_{qo}(θ) \coloneqq \sup_{δ > 0} \frac{1-(1+δ)(1-(1-ρ_{\mathrm{red}})θ)}{C_{\mathrm{rel}}^2 (C_{\mathrm{red}} + (1+δ⁻¹)C_{\mathrm{stab}}^2)}
 `
 we can find a $`δ > 0` such that
 $$`
-ε_{qo} < \frac{1-(1+δ)(1-(1-ρ_{red})θ)}{C_{rel}^2 (C_{red} + (1+δ⁻¹)C_{stab}^2) ≤ ε^*_{qo}(θ).
+ε_{qo} < \frac{1-(1+δ)(1-(1-ρ_{\mathrm{red}})θ)}{C_{\mathrm{rel}}^2 (C_{\mathrm{red}} + (1+δ⁻¹)C_{\mathrm{stab}}^2) ≤ ε^*_{qo}(θ).
 `
 It can be shown that this $`δ` in fact satisfies the properties we need.
 Due to the way Lean internally defines suprema over the positive
@@ -100,10 +100,10 @@ to `gη2_seq` with $$`η^2_n \coloneqq η^2(\mathcal{T}_{n}, U(\mathcal{T}_{n}))
 
 We start the proof by taking a concrete $`δ > 0` such that
 $`ρ_{est}(δ) < 1` (estimator reduction applies) and
-$`ε_{qo} < \frac{1-ρ_{est}(δ)}{C_{rel}^2 C_{est}(δ)}` from the constants
+$`ε_{qo} < \frac{1-ρ_{est}(δ)}{C_{\mathrm{rel}}^2 C_{est}(δ)}` from the constants
 lemma.
 Then we define a new quantity
-$$`v \coloneqq ε_{qo} C_{rel}^2 C_{est}(δ)`
+$$`v \coloneqq ε_{qo} C_{\mathrm{rel}}^2 C_{est}(δ)`
 which can easily be shown to satisfy $`0 ≤ v < 1 - ρ_{est}(δ)`
 with our choice of $`δ`.
 
@@ -136,7 +136,7 @@ The first step is to show
 $$`
 \begin{aligned}
   ∑_{k=0}^n η^2_{k+l+1} &≤ ∑_{k=0}^n (ρ_{est}(δ) + v) η^2_{k+l} \\
-  &\quad + C_{est}(δ) C_{qo} η^2_l
+  &\quad + C_{est}(δ) C_{\mathrm{qo}} η^2_l
 \end{aligned}
 `
 for all $`n,l ∈ ℕ`
@@ -148,11 +148,11 @@ $$`
   ∑_{k=0}^n η^2_{k+l+1}
   &≤ ∑_{k=0}^n [ρ_{est}(δ) η^2_{k+l} + C_{est}(δ) 𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2] \\
   &= ∑_{k=0}^n [(ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) (𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2 - v C_{est}(δ)^{-1} η^2_{k+l})] \\
-  &≤ ∑_{k=0}^n [(ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) (𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2 - v C_{est}(δ)^{-1} (C_{rel}^{-1} 𝕕[\mathcal{T}_{k+l}; u, U(\mathcal{T}_{k+l})])^2)] \\
-  &= ∑_{k=0}^n [(ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) (𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2 - \frac{v}{C_{rel}^2 C_{est}(δ)} 𝕕[\mathcal{T}_{k+l}; u, U(\mathcal{T}_{k+l})]^2)] \\
+  &≤ ∑_{k=0}^n [(ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) (𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2 - v C_{est}(δ)^{-1} (C_{\mathrm{rel}}^{-1} 𝕕[\mathcal{T}_{k+l}; u, U(\mathcal{T}_{k+l})])^2)] \\
+  &= ∑_{k=0}^n [(ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) (𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2 - \frac{v}{C_{\mathrm{rel}}^2 C_{est}(δ)} 𝕕[\mathcal{T}_{k+l}; u, U(\mathcal{T}_{k+l})]^2)] \\
   &= ∑_{k=0}^n [(ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) (𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2 - ε_{qo} 𝕕[\mathcal{T}_{k+l}; u, U(\mathcal{T}_{k+l})]^2)] \\
   &= ∑_{k=0}^n (ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) ∑_{k=0}^n (𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2 - ε_{qo} 𝕕[\mathcal{T}_{k+l}; u, U(\mathcal{T}_{k+l})]^2) \\
-  &≤ ∑_{k=0}^n (ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) C_{qo} η^2_l
+  &≤ ∑_{k=0}^n (ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) C_{\mathrm{qo}} η^2_l
 \end{aligned}
 `
 
@@ -253,7 +253,7 @@ In the Lean proof we continue with this chain of reasoning:
 
 Using this first result we can continue to show
 $$`
-(1 - (ρ_{est}(δ) + ν)) ∑_{k=0}^n η^2_{k+l+1} ≤ (C_{est}(δ) C_{qo} + ρ_{est}(δ) + ν) η^2_l
+(1 - (ρ_{est}(δ) + ν)) ∑_{k=0}^n η^2_{k+l+1} ≤ (C_{est}(δ) C_{\mathrm{qo}} + ρ_{est}(δ) + ν) η^2_l
 `
 
 This follows from the calculation
@@ -266,9 +266,9 @@ $$`
   &≤ (1 - (ρ_{est}(δ) + ν)) ∑_{k=0}^n η^2_{k+l} + η^2_{n+l+1} - (1 - (ρ_{est}(δ) + ν)) η^2_l \\
   &= ∑_{k=0}^n η^2_{k+l} - (ρ_{est}(δ) + ν) ∑_{k=0}^n η^2_{k+l} + η^2_{n+l+1} - η^2_l + (ρ_{est}(δ) + ν) η^2_l \\
   &= ∑_{k=0}^n η^2_{k+l+1} - (ρ_{est}(δ) + ν) ∑_{k=0}^n η^2_{k+l} + (ρ_{est}(δ) + ν) η^2_l \\
-  &≤ ∑_{k=0}^n (ρ_{est}(δ) + ν) η^2_{k+l} + C_{est}(δ) C_{qo} η^2_l - (ρ_{est}(δ) + ν) ∑_{k=0}^n η^2_{k+l} + (ρ_{est}(δ) + ν) η^2_l \\
-  &= C_{est}(δ) C_{qo} η^2_l + (ρ_{est}(δ) + ν) η^2_l \\
-  &= (C_{est}(δ) C_{qo} + ρ_{est}(δ) + ν) η^2_l
+  &≤ ∑_{k=0}^n (ρ_{est}(δ) + ν) η^2_{k+l} + C_{est}(δ) C_{\mathrm{qo}} η^2_l - (ρ_{est}(δ) + ν) ∑_{k=0}^n η^2_{k+l} + (ρ_{est}(δ) + ν) η^2_l \\
+  &= C_{est}(δ) C_{\mathrm{qo}} η^2_l + (ρ_{est}(δ) + ν) η^2_l \\
+  &= (C_{est}(δ) C_{\mathrm{qo}} + ρ_{est}(δ) + ν) η^2_l
 \end{aligned}
 `
 where the first inequality uses the fact that $`(1-(ρ_{est}(δ)+v)) < 1` and
@@ -335,7 +335,7 @@ translates to the following section
 ```
 
 Now noting that $`0 < 1 - (ρ_{est}(δ) + v)` we can divide on both
-sides and setting $`C \coloneqq \frac{(C_{est}(δ) C_{qo} + ρ_{est}(δ) + ν)}{1 - (ρ_{est}(δ) + v)}`
+sides and setting $`C \coloneqq \frac{(C_{est}(δ) C_{\mathrm{qo}} + ρ_{est}(δ) + ν)}{1 - (ρ_{est}(δ) + v)}`
 arrive at
 $$`
 ∑_{k=0}^n η^2_{k+l+1} ≤ C η^2_l

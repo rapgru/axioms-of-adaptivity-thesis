@@ -138,3 +138,10 @@ def hubert2025olympiad : Article where
   volume := inlines!""
   number := inlines!""
   url := "https://doi.org/10.1038/s41586-025-09833-y"
+
+def feischl2025fem : InProceedings where
+  title := inlines!"Numerics of Partial Differential Equations: Stationary Problems"
+  authors := #[inlines!"Feischl, Michael", inlines!"Praetorius, Dirk"]
+  year := 2025
+  booktitle := inlines!"Lecture Notes, TU Wien"
+  url := "https://michaelfeischl.github.io/lecturenotes/FEM_VO.pdf"

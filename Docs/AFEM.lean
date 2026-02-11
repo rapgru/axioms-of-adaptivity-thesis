@@ -9,6 +9,7 @@ set_option pp.rawOnError true
 
 #doc (Manual) "Adaptive FEM" =>
 %%%
+tag := "afem"
 htmlSplit := .never
 %%%
 
@@ -23,8 +24,9 @@ In the following, we summarize the basic concepts of this method.
 
 For this section, assume that we want to approximate the solution $`u` of a
 partial differential equation using the finite element method (in an appropriate
-function space $`X`). We will obtain discrete approximations $`u_{\mathcal{T}}`
-on a mesh $`\mathcal{T}`.
+function space $`\mathcal{X}`). For a mesh $`\mathcal{T} ∈ \mathbb{T}` of
+the problem domain, we can obtain a discrete approximations $`u_{\mathcal{T}}`
+living on this mesh.
 
 A posteriori error estimators are computable quantities that estimate the error
 of a numerical solution to a partial differential equation. _Computable_ means
@@ -42,22 +44,22 @@ In a very strong sense, we want the error estimator $`\eta` to be _reliable_ and
 
    means that the error estimator bounds the actual error from above,
    i.e., there exists a constant $`C_{\mathrm{rel}} > 0` such that for all meshes
-   $`\mathcal{T}`
-   $$`\|u - u_{\mathcal{T}}\|_X \leq C_{\mathrm{rel}} \, \eta(u_{\mathcal{T}}).`
+   $`\mathcal{T}` of the problem domain
+   $$`\|u - u_{\mathcal{T}}\|_\mathcal{X} \leq C_{\mathrm{rel}} \, \eta(u_{\mathcal{T}}).`
 
 : Efficiency
 
    means that the error estimator also bounds the error from below,
    i.e., there exists a constant $`C_{\mathrm{eff}} > 0` such that for all meshes
-   $`\mathcal{T}`
-   $$`C_{\mathrm{eff}} \, \eta(u_{\mathcal{T}}) \leq \|u - u_{\mathcal{T}}\|_X .`
+   $`\mathcal{T}` of the problem domain
+   $$`C_{\mathrm{eff}} \, \eta(u_{\mathcal{T}}) \leq \|u - u_{\mathcal{T}}\|_\mathcal{X} .`
 
 These two properties ensure that the error estimator is a good measure
 of the actual error. Reliability ensures that the computed solution is accurate
 when the estimator is small, while efficiency ensures that the estimator
 will converge to zero as the numerical solution approaches the exact solution.
 In short, a reliable and efficient error estimator has the same order of
-convergence as the actual error $`\|u - u_{\mathcal{T}}\|_X`.
+convergence as the actual error $`\|u - u_{\mathcal{T}}\|_\mathcal{X}`.
 
 Usually, error estimators are defined as sums of local contributions from each element
 of the mesh. So
@@ -72,7 +74,7 @@ A posteriori error estimators have two major applications:
 
 An example of an a posteriori error estimator for the Poisson equation with
 homogeneous Dirichlet boundary conditions $`u=0` on $`\partial\Omega` is the
-residual error estimator.
+residual error estimator {citep feischl2025fem}[].
 
 # Adaptive Finite Element Method
 %%%
@@ -142,3 +144,6 @@ is exactly the loop from the previous section.
 By concentrating on the re-entrant corner we arrive at a better
 approximation of the solution than with uniform refinement using the same
 computational effort.
+
+The next chapter will show the very abstract setting and assumptions
+*AoA* makes about AFEM and how they translate to Lean.

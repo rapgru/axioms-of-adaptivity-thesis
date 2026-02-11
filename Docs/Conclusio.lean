@@ -7,13 +7,15 @@ open Docs
 
 set_option pp.rawOnError true
 
+-- Abschließende Gedanken, was könnten man noch machen, wo sind die größten
+-- Schwierigkeiten, Link zum Github Repo
+
 #doc (Manual) "Conclusion" =>
 %%%
 htmlSplit := .never
 %%%
 
--- Abschließende Gedanken, was könnten man noch machen, wo sind die größten
--- Schwierigkeiten, Link zum Github Repo
+
 
 We have seen four lemmas of *AoA* formalized in Lean.
 When seen as a case study, we can definitely say
@@ -61,11 +63,11 @@ is worth it to gain an ultimate answer about the correctness of the proof.
 
 An interesting aspect of formal verification in the context of computer
 numerics is that with Lean it is possible to prove correctness
-of imperative programs (e.g. for the Rust programming language {citep ho2022aeneas}[]).
+of imperative programs (e.g. for the Rust programming language {citet ho2022aeneas}[]).
 One could explore for example if it is possible to implement
 an AFEM solver and prove the axioms of adaptivity for it.
 Such a solver could have unmatched guarantees in terms of
-correctness and precision.
+correctness.
 
 # Learnings About Theorem Proving in Lean
 
@@ -90,7 +92,7 @@ who want to formalize similar theorems in Lean.
 - Structuring numerical proofs in a way that they fit into a `calc`-block
   was a robust method for our theorems at least
 
-# Lean Code
+# Lean Repository
 %%%
 tag := "code"
 %%%

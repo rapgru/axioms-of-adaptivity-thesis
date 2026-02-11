@@ -21,7 +21,7 @@ This chapter formalizes the proof of Corollary 4.8 from *AoA* which states
 
 > *Corollary 4.8*: Suppose we know a-priori convergence to some limit $`U_∞`
   $$`
-  \lim_{l \to \infty} \mathbb{d}[\mathcal{T}_l; U_\infty, U(\mathcal{T}_l)] = 0
+  \lim_{l \to \infty} 𝕕[\mathcal{T}_l; U_\infty, U(\mathcal{T}_l)] = 0
   `
   and have estimator reduction (for example from {ref "estimator_reduction"}[Lemma 4.7])
   $$`
@@ -30,7 +30,7 @@ This chapter formalizes the proof of Corollary 4.8 from *AoA* which states
   This implies the convergence of the estimator $`
   \lim_{l \to \infty} η^2(\mathcal{T}_l, U(\mathcal{T}_l)) = 0
   ` and therefore with reliability that $`
-  \lim_{l \to \infty} \mathbb{d}(\mathcal{T}_l, u, U(\mathcal{T}_l)) = 0.
+  \lim_{l \to \infty} 𝕕(\mathcal{T}_l, u, U(\mathcal{T}_l)) = 0.
   `
 
 # Formal statement
@@ -50,12 +50,12 @@ into two Lean theorems. The "larger" theorem we want to ultimately show is
 theorem convergence_of_apriori (hd_seq_lim : Tendsto (d_seq alg) atTop (𝓝 0)) :
   Tendsto (fun n ↦ alg.d (alg.𝒯 <| n) alg.u (alg.U <| alg.𝒯 n)) atTop (𝓝 0) := by { ... }
 ```
-which means that $`\mathbb{d}(\mathcal{T}_l, u, U(\mathcal{T}_l))` converges to zero if
-we have $`\lim_{l \to \infty} \mathbb{d}[\mathcal{T}_l; U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)] = 0`.
+which means that $`𝕕(\mathcal{T}_l, u, U(\mathcal{T}_l))` converges to zero if
+we have $`\lim_{l \to \infty} 𝕕[\mathcal{T}_l; U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)] = 0`.
 Note that this is not exactly the statement from *AoA*. We have left out the implication
 $$`
-\lim_{l \to \infty} \mathbb{d}[\mathcal{T}_l; U_\infty, U(\mathcal{T}_l)] = 0 \Longrightarrow
-\lim_{l \to \infty} \mathbb{d}[\mathcal{T}_l; U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)] = 0.
+\lim_{l \to \infty} 𝕕[\mathcal{T}_l; U_\infty, U(\mathcal{T}_l)] = 0 \Longrightarrow
+\lim_{l \to \infty} 𝕕[\mathcal{T}_l; U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)] = 0.
 `
 -- TODO what about this implication??
 
@@ -71,7 +71,7 @@ This way, both implications from Corollary 4.8 are proven in Lean.
 
 Due to this proof being the first one to be formalized, its structure
 is not optimal. It is split into a simple part where the
-global error $`η` and the distance $`\mathbb{d}` are replaced by non-negative
+global error $`η` and the distance $`𝕕` are replaced by non-negative
 sequences and a bridging theorem that uses the simpler result to show
 estimator convergence for an arbitrary $`AdaptiveAlgorithm`, the main difference
 being that the codomain of the involved functions (`η`, `d`) is `ℝ` instead of `NNReal`
@@ -451,7 +451,7 @@ lemma estimator_reduction_delta_exists : ∃ δ > 0, alg.ρ_est δ ∈ Set.Ioo 0
 ```
 which is has an uninspiring proof of the fact that
 $$`
-δ := \frac12 * ((1 - ρ_{red}) θ (1 - (1 - ρ_{red}) * θ)⁻¹)
+δ := \frac12 * ((1 - ρ_{\mathrm{red}}) θ (1 - (1 - ρ_{\mathrm{red}}) * θ)⁻¹)
 `
 fulfils $`ρ_{est}(δ) < 1`.
 
@@ -525,11 +525,11 @@ from  --TODO reference
 
 Now the final blow is to show convergence of the distance to the unkown limit $`u`.
 This follows from reliability (A4) because it allows us to
-sandwich $`(\mathbb{d}(\mathcal{T}_l, u, U(\mathcal{T}_l)))_{l∈ℕ}`
+sandwich $`(𝕕(\mathcal{T}_l, u, U(\mathcal{T}_l)))_{l∈ℕ}`
 between the zero-convergent sequence $`(√{η^2(\mathcal{T}_l, U(\mathcal{T}_l))})_{l∈ℕ}` and the constant
 sequence zero:
 $$`
-0 ≤ \mathbb{d}(\mathcal{T}_l, u, U(\mathcal{T}_l)) ≤ C_{rel} √{η^2(\mathcal{T}_l, U(\mathcal{T}_l))}
+0 ≤ 𝕕(\mathcal{T}_l, u, U(\mathcal{T}_l)) ≤ C_{\mathrm{rel}} √{η^2(\mathcal{T}_l, U(\mathcal{T}_l))}
 `
 This is translates nicely to a Lean proof using the {anchorTerm convergence_of_apriori}`squeeze_zero`
 theorem from mathlib.
