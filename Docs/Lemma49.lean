@@ -30,11 +30,11 @@ It states
 
 > *Lemma 4.9*: The following statements are pairwise equivalent:
   1.) _Uniform summability_: There exists a constant $`C_3 > 0` such that
-      $$`∑_{k=l+1}^∞ η(𝒯_k; U(𝒯_k))² ≤ C_3 η(𝒯_l; U(𝒯_l))² \quad \text{for all } l ∈ ℕ_0.`
+      $$`∑_{k=l+1}^∞ η(\mathcal{T}_k; U(\mathcal{T}_k))² ≤ C_3 η(\mathcal{T}_l; U(\mathcal{T}_l))² \quad \text{for all } l ∈ ℕ_0.`
   2.) _Inverse summability_: For all $`s > 0`, there exists a constant $`C_4 > 0` such that
-      $$`∑_{k=0}^{l-1} η(𝒯_k; U(𝒯_k))^{-1/s} ≤ C_4 η(𝒯_l; U(𝒯_l))^{-1/s} \quad \text{for all } l ∈ ℕ_0.`
+      $$`∑_{k=0}^{l-1} η(\mathcal{T}_k; U(\mathcal{T}_k))^{-1/s} ≤ C_4 η(\mathcal{T}_l; U(\mathcal{T}_l))^{-1/s} \quad \text{for all } l ∈ ℕ_0.`
   3.) _Uniform R-linear convergence on any level_: There exist constants $`0 < ρ_1 < 1` and $`C_5 > 0` such that
-      $$`η(𝒯_{l+k}; U(𝒯_{l+k}))² ≤ C_5 ρ_1^k η(𝒯_l; U(𝒯_l))² \quad \text{for all } k, l ∈ ℕ_0.`
+      $$`η(\mathcal{T}_{l+k}; U(\mathcal{T}_{l+k}))² ≤ C_5 ρ_1^k η(\mathcal{T}_l; U(\mathcal{T}_l))² \quad \text{for all } k, l ∈ ℕ_0.`
 
 # Formal statement
 %%%
@@ -50,7 +50,7 @@ inverse summability is only well-defined if $∀ n ∈ ℕ_0 : a_n ≠ 0$.
 We can also observe, that the statement is equally true if we replace the
 global error estimator by an arbitrary non-negative sequence $`(a_n)`. Because $`η`
 is non-negative by definition, we can recover the original form
-by plugging in the sequence $`(η(𝒯_l, U(𝒯_l)))`. So we
+by plugging in the sequence $`(η(\mathcal{T}_l, U(\mathcal{T}_l)))`. So we
 will show the equivalence in the form:
 
 > For any *positive* sequence $`(a_n)`, the following statements are pairwise equivalent:
@@ -318,7 +318,7 @@ the second one the convergence of the geometric series because $`q<1`.
 Now we can prove uniform summability, which means we have to
 show that $`(a_n)` is summable and the bound
 $$`
-∑_{k=l+1}^∞ η(𝒯_k; U(𝒯_k))² ≤ C_3 η(𝒯_l; U(𝒯_l))².
+∑_{k=l+1}^∞ η(\mathcal{T}_k; U(\mathcal{T}_k))² ≤ C_3 η(\mathcal{T}_l; U(\mathcal{T}_l))².
 `
 
 We start with the bound, this follows directly from

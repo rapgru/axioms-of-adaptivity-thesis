@@ -25,12 +25,12 @@ This chapter formalizes the proof of Corollary 4.8 from *AoA* which states
   `
   and have estimator reduction (for example from {ref "estimator_reduction"}[Lemma 4.7])
   $$`
-  η(\mathcal{T}_{ℓ+1}; U(\mathcal{T}_{ℓ+1}))² ≤ ρ_{est} η(\mathcal{T}_ℓ; U(\mathcal{T}_ℓ))² + C_{est} 𝕕[\mathcal{T}_{ℓ+1}; U(\mathcal{T}_{ℓ+1}), U(\mathcal{T}_ℓ)]².
+  η(\mathcal{T}_{l+1}; U(\mathcal{T}_{l+1}))² ≤ ρ_{est} η(\mathcal{T}_l; U(\mathcal{T}_l))² + C_{est} 𝕕[\mathcal{T}_{l+1}; U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]².
   `
   This implies the convergence of the estimator $`
-  \lim_{l \to \infty} η^2(𝒯_l, U(𝒯_l)) = 0
+  \lim_{l \to \infty} η^2(\mathcal{T}_l, U(\mathcal{T}_l)) = 0
   ` and therefore with reliability that $`
-  \lim_{l \to \infty} \mathbb{d}(𝒯_l, u, U(𝒯_l)) = 0.
+  \lim_{l \to \infty} \mathbb{d}(\mathcal{T}_l, u, U(\mathcal{T}_l)) = 0.
   `
 
 # Formal statement
@@ -50,7 +50,7 @@ into two Lean theorems. The "larger" theorem we want to ultimately show is
 theorem convergence_of_apriori (hd_seq_lim : Tendsto (d_seq alg) atTop (𝓝 0)) :
   Tendsto (fun n ↦ alg.d (alg.𝒯 <| n) alg.u (alg.U <| alg.𝒯 n)) atTop (𝓝 0) := by { ... }
 ```
-which means that $`\mathbb{d}(𝒯_l, u, U(𝒯_l))` converges to zero if
+which means that $`\mathbb{d}(\mathcal{T}_l, u, U(\mathcal{T}_l))` converges to zero if
 we have $`\lim_{l \to \infty} \mathbb{d}[\mathcal{T}_l; U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)] = 0`.
 Note that this is not exactly the statement from *AoA*. We have left out the implication
 $$`
@@ -64,7 +64,7 @@ We will reach this theorem by first showing the intermediate result
 lemma convergence_of_estimator (hd_seq_lim : Tendsto (d_seq alg) atTop (𝓝 0)) :
     Tendsto alg.gη2_seq atTop (𝓝 0) := by { ... }
 ```
-saying that $`η^2(𝒯_l, U(𝒯_l))` converges to zero given a-priori convergence.
+saying that $`η^2(\mathcal{T}_l, U(\mathcal{T}_l))` converges to zero given a-priori convergence.
 This way, both implications from Corollary 4.8 are proven in Lean.
 
 # Proof
@@ -439,7 +439,7 @@ Now we have reached the final conclusion of `SimpleEstimatorReduction`.
 In a "glueing" theorem we can now use the theory of `SimpleEstimatorReduction`
 to show the actual statement of Corollary 4.8. The first step is
 to port the result of `SimpleEstimatorReduction` to the `AdaptiveAlgorithm`
-world, i.e. that $`\lim_{l→∞} η^2(𝒯_l, U(𝒯_l)) = 0`.
+world, i.e. that $`\lim_{l→∞} η^2(\mathcal{T}_l, U(\mathcal{T}_l)) = 0`.
 
 The only non-trivial step in this endeavour is that we formulated
 the estimator reduction in {ref "lemma47_formal_statement"}[Lemma 4.7]
@@ -525,11 +525,11 @@ from  --TODO reference
 
 Now the final blow is to show convergence of the distance to the unkown limit $`u`.
 This follows from reliability (A4) because it allows us to
-sandwich $`(\mathbb{d}(𝒯_l, u, U(𝒯_l)))_{l∈ℕ}`
-between the zero-convergent sequence $`(√{η^2(𝒯_l, U(𝒯_l))})_{l∈ℕ}` and the constant
+sandwich $`(\mathbb{d}(\mathcal{T}_l, u, U(\mathcal{T}_l)))_{l∈ℕ}`
+between the zero-convergent sequence $`(√{η^2(\mathcal{T}_l, U(\mathcal{T}_l))})_{l∈ℕ}` and the constant
 sequence zero:
 $$`
-0 ≤ \mathbb{d}(𝒯_l, u, U(𝒯_l)) ≤ C_{rel} √{η^2(𝒯_l, U(𝒯_l))}
+0 ≤ \mathbb{d}(\mathcal{T}_l, u, U(\mathcal{T}_l)) ≤ C_{rel} √{η^2(\mathcal{T}_l, U(\mathcal{T}_l))}
 `
 This is translates nicely to a Lean proof using the {anchorTerm convergence_of_apriori}`squeeze_zero`
 theorem from mathlib.

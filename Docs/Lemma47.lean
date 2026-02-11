@@ -20,8 +20,8 @@ tag := "estimator_reduction"
 This chapter formalizes the proof of Lemma 4.7 from *AoA* which reads as
 
 > *Lemma 4.7*: Stability (A1) and Reduction (A2) imply the estimator reduction
-  $$`η(\mathcal{T}_{ℓ+1}; U(\mathcal{T}_{ℓ+1}))² ≤ ρ_{est} η(\mathcal{T}_ℓ; U(\mathcal{T}_ℓ))² + C_{est} 𝕕[\mathcal{T}_{ℓ+1}; U(\mathcal{T}_{ℓ+1}), U(\mathcal{T}_ℓ)]²`
-  for all $`ℓ ∈ ℕ_0` with the constants $`0 < ρ_{est} < 1` and $`C_{est} > 0` which
+  $$`η(\mathcal{T}_{l+1}; U(\mathcal{T}_{l+1}))² ≤ ρ_{est} η(\mathcal{T}_l; U(\mathcal{T}_l))² + C_{est} 𝕕[\mathcal{T}_{l+1}; U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]²`
+  for all $`l ∈ ℕ_0` with the constants $`0 < ρ_{est} < 1` and $`C_{est} > 0` which
   relate via
   $$`ρ_{est} = (1 + δ)(1 - (1 - ρ_{red})θ) \quad \text{and} \quad C_{est} = C_{red} + (1 + δ⁻¹)C_{stab}²`
   for all sufficiently small $`δ` such that $`ρ_{est} < 1`.
@@ -72,11 +72,11 @@ the only the elements that have been refined:
 > *Lemma (Dörfler for refined elements)*: For all $`l ∈ ℕ_0` we have the
   estimate
   $$`
-  θ η^2(𝒯_{l}, U(𝒯_{l})) ≤ \sum_{t \in 𝒯_l \setminus 𝒯_{l+1}} η_{t}^2(𝒯_{l}, U(𝒯_{l}))
+  θ η^2(\mathcal{T}_{l}, U(\mathcal{T}_{l})) ≤ \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_{t}^2(\mathcal{T}_{l}, U(\mathcal{T}_{l}))
   `
 
 The proof is straightforward, it follows from the Dörfler property,
-$`ℳ_l ⊆ 𝒯_l \setminus 𝒯_{l+1}` and that a sum does not increase when
+$`ℳ_l ⊆ \mathcal{T}_l \setminus \mathcal{T}_{l+1}` and that a sum does not increase when
 we add non-negative summands. In Lean the proof reads as
 ```anchor doerfler_for_refined_elements
 lemma doerfler_for_refined_elements :
@@ -208,7 +208,7 @@ theorem estimator_reduction : ∀ δ > 0, (alg.ρ_est δ < 1) →
 ```
 
 Then the estimate can be shown in one long chain of equalities and estimates,
-starting from $`η^2(𝒯_{l+1}, U(𝒯_{l+1}))`, where every step has a Lean proof
+starting from $`η^2(\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}))`, where every step has a Lean proof
 of reasonable size. We will present the Lean proof interlaced with the mathematical
 explanation of the current calculation step.
 
@@ -237,8 +237,8 @@ Next, we apply the reduction property on refined elements (A2) to reach
 
 $$`
 \begin{aligned}
-&\le ρ_{red} \sum_{t \in 𝒯_l \setminus 𝒯_{l+1}} η_t^2(𝒯_l, U(𝒯_l)) + C_{red} 𝕕[𝒯_{l+1}, U(𝒯_{l+1}), U(𝒯_l)]^2 \\
-&\quad + \sum_{t \in 𝒯_l \cap 𝒯_{l+1}} η_t^2(𝒯_{l+1}, U(𝒯_{l+1})).
+&\le ρ_{red} \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)) + C_{red} 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
+&\quad + \sum_{t \in \mathcal{T}_l \cap \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1})).
 \end{aligned}
 `
 
@@ -259,8 +259,8 @@ Now, in one step we can estimate
 
 $$`
 \begin{aligned}
-&\le ρ_{red} \sum_{t \in 𝒯_l \setminus 𝒯_{l+1}} η_t^2(𝒯_l, U(𝒯_l)) + C_{red} 𝕕[𝒯_{l+1}, U(𝒯_{l+1}), U(𝒯_l)]^2 \\
-&\quad + (1+δ) \sum_{t \in 𝒯_l \cap 𝒯_{l+1}} η_t^2(𝒯_l, U(𝒯_l)) + (1+δ⁻¹) C_{stab}^2 𝕕[𝒯_{l+1}, U(𝒯_{l+1}), U(𝒯_l)]^2
+&\le ρ_{red} \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)) + C_{red} 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
+&\quad + (1+δ) \sum_{t \in \mathcal{T}_l \cap \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)) + (1+δ⁻¹) C_{stab}^2 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2
 \end{aligned}
 `
 by combining stability on non-refined element domains (A1) and the
@@ -299,8 +299,8 @@ closing one of the three goals.
 Then we rewrite
 $$`
 \begin{aligned}
-&= ρ_{red} \sum_{t \in 𝒯_l \setminus 𝒯_{l+1}} η_t^2(𝒯_l, U(𝒯_l)) + (1+δ) \sum_{t \in 𝒯_l \cap 𝒯_{l+1}} η_t^2(𝒯_l, U(𝒯_l)) \\
-&\quad + (C_{red} + (1+δ⁻¹) C_{stab}^2) 𝕕[𝒯_{l+1}, U(𝒯_{l+1}), U(𝒯_l)]^2
+&= ρ_{red} \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)) + (1+δ) \sum_{t \in \mathcal{T}_l \cap \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)) \\
+&\quad + (C_{red} + (1+δ⁻¹) C_{stab}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2
 \end{aligned}
 `
 by basic algebra. Lean can prove this on its own using the `ring` tactic:
@@ -314,8 +314,8 @@ by basic algebra. Lean can prove this on its own using the `ring` tactic:
 Next, by definition of the global error $`η^2` and basic set identities
 $$`
 \begin{aligned}
-&= ρ_{red} \sum_{t \in 𝒯_l \setminus 𝒯_{l+1}} η_t^2(𝒯_l, U(𝒯_l)) \\
-&\quad + (1+δ) \left(η^2(𝒯_l, U(𝒯_l)) - \sum_{t \in 𝒯_l \setminus 𝒯_{l+1}} η_t^2(𝒯_l, U(𝒯_l))\right).
+&= ρ_{red} \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)) \\
+&\quad + (1+δ) \left(η^2(\mathcal{T}_l, U(\mathcal{T}_l)) - \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l))\right).
 \end{aligned}
 `
 
@@ -342,8 +342,8 @@ in the proof to go from the simpler inequality to the original goal on its own.
 Now, because $`δ > 0` we have
 $$`
 \begin{aligned}
-&\quad + (C_{red} + (1+δ⁻¹) C_{stab}^2) 𝕕[𝒯_{l+1}, U(𝒯_{l+1}), U(𝒯_l)]^2 \\
-&\le (1+δ) ρ_{red} \sum_{t \in 𝒯_l \setminus 𝒯_{l+1}} η_t^2(𝒯_l, U(𝒯_l)).
+&\quad + (C_{red} + (1+δ⁻¹) C_{stab}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
+&\le (1+δ) ρ_{red} \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)).
 \end{aligned}
 `
 
@@ -362,14 +362,14 @@ The last steps are basic algebra and one application of the
 Doerfler marking for refined elements lemma.
 $$`
 \begin{aligned}
-&\quad + (1+δ) \left(η^2(𝒯_l, U(𝒯_l)) - \sum_{t \in 𝒯_l \setminus 𝒯_{l+1}} η_t^2(𝒯_l, U(𝒯_l))\right) \\
-&\quad + (C_{red} + (1+δ⁻¹) C_{stab}^2) 𝕕[𝒯_{l+1}, U(𝒯_{l+1}), U(𝒯_l)]^2 \\
-&= (1+δ) \left(η^2(𝒯_l, U(𝒯_l)) - (1 - ρ_{red}) \sum_{t \in 𝒯_l \setminus 𝒯_{l+1}} η_t^2(𝒯_l, U(𝒯_l))\right) \\
-&\quad + (C_{red} + (1+δ⁻¹) C_{stab}^2) 𝕕[𝒯_{l+1}, U(𝒯_{l+1}), U(𝒯_l)]^2 \\
-&\le (1+δ) (η^2(𝒯_l, U(𝒯_l)) - (1 - ρ_{red}) θ η^2(𝒯_l, U(𝒯_l))) \\
-&\quad + (C_{red} + (1+δ⁻¹) C_{stab}^2) 𝕕[𝒯_{l+1}, U(𝒯_{l+1}), U(𝒯_l)]^2 \\
-&= (1+δ) (1 - (1 - ρ_{red}) θ) η^2(𝒯_l, U(𝒯_l)) \\
-&\quad + (C_{red} + (1+δ⁻¹) C_{stab}^2) 𝕕[𝒯_{l+1}, U(𝒯_{l+1}), U(𝒯_l)]^2
+&\quad + (1+δ) \left(η^2(\mathcal{T}_l, U(\mathcal{T}_l)) - \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l))\right) \\
+&\quad + (C_{red} + (1+δ⁻¹) C_{stab}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
+&= (1+δ) \left(η^2(\mathcal{T}_l, U(\mathcal{T}_l)) - (1 - ρ_{red}) \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l))\right) \\
+&\quad + (C_{red} + (1+δ⁻¹) C_{stab}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
+&\le (1+δ) (η^2(\mathcal{T}_l, U(\mathcal{T}_l)) - (1 - ρ_{red}) θ η^2(\mathcal{T}_l, U(\mathcal{T}_l))) \\
+&\quad + (C_{red} + (1+δ⁻¹) C_{stab}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
+&= (1+δ) (1 - (1 - ρ_{red}) θ) η^2(\mathcal{T}_l, U(\mathcal{T}_l)) \\
+&\quad + (C_{red} + (1+δ⁻¹) C_{stab}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2
 \end{aligned}
 `
 This finished the proof as we have arrived at the upper bound we wanted to have.

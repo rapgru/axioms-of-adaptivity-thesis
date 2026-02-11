@@ -20,15 +20,15 @@ This chapter formalizes the proof of Proposition 4.10 from *AoA* which reads as
 
 > *Proposition 4.10*: Assuming estimator reduction
   $$`
-  η(𝒯_{l+1}; U(𝒯_{l+1}))² ≤ ρ_{est} η(𝒯_l; U(𝒯_l))² + C_{est} 𝕕[𝒯_{l+1}; U(𝒯_{l+1}), U(𝒯_l)]².
+  η(\mathcal{T}_{l+1}; U(\mathcal{T}_{l+1}))² ≤ ρ_{est} η(\mathcal{T}_l; U(\mathcal{T}_l))² + C_{est} 𝕕[\mathcal{T}_{l+1}; U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]².
   `
   and reliability, general quasi-orthogonality (A3) implies the summability statements
   1. _Uniform summability_: There exists a constant $`C_3 > 0` such that
-      $$`∑_{k=l+1}^∞ η(𝒯_k; U(𝒯_k))² ≤ C_3 η(𝒯_l; U(𝒯_l))² \quad \text{for all } l ∈ ℕ_0.`
+      $$`∑_{k=l+1}^∞ η(\mathcal{T}_k; U(\mathcal{T}_k))² ≤ C_3 η(\mathcal{T}_l; U(\mathcal{T}_l))² \quad \text{for all } l ∈ ℕ_0.`
   2. _Inverse summability_: For all $`s > 0`, there exists a constant $`C_4 > 0` such that
-      $$`∑_{k=0}^{l-1} η(𝒯_k; U(𝒯_k))^{-1/s} ≤ C_4 η(𝒯_l; U(𝒯_l))^{-1/s} \quad \text{for all } l ∈ ℕ_0.`
+      $$`∑_{k=0}^{l-1} η(\mathcal{T}_k; U(\mathcal{T}_k))^{-1/s} ≤ C_4 η(\mathcal{T}_l; U(\mathcal{T}_l))^{-1/s} \quad \text{for all } l ∈ ℕ_0.`
   3. _Uniform R-linear convergence on any level_: There exist constants $`0 < ρ_1 < 1` and $`C_5 > 0` such that
-      $$`η(𝒯_{l+k}; U(𝒯_{l+k}))² ≤ C_5 ρ_1^k η(𝒯_l; U(𝒯_l))² \quad \text{for all } k, l ∈ ℕ_0.`
+      $$`η(\mathcal{T}_{l+k}; U(\mathcal{T}_{l+k}))² ≤ C_5 ρ_1^k η(\mathcal{T}_l; U(\mathcal{T}_l))² \quad \text{for all } k, l ∈ ℕ_0.`
   where all constants $`C_3`, $`C_4`, $`C_5`, $`ρ_1` only depend on $`ρ_{est}`, $`C_{est}`, $`C_{qo}(ε_{qo})`, $`s`.
 
 From  {ref "summability_equivalence"}[Lemma 4.9] we already know that the summability
@@ -96,7 +96,7 @@ summands is not very relevant, we write the sums up to an index $`n`.
 Because lean sums over a range of natural numbers have an exclusive upper limit
 the sums correspond with the Lean sums
 Also, we define an analogon
-to `gη2_seq` with $$`η^2_n \coloneqq η^2(𝒯_{n}, U(𝒯_{n}))`
+to `gη2_seq` with $$`η^2_n \coloneqq η^2(\mathcal{T}_{n}, U(\mathcal{T}_{n}))`
 
 We start the proof by taking a concrete $`δ > 0` such that
 $`ρ_{est}(δ) < 1` (estimator reduction applies) and
@@ -146,12 +146,12 @@ Lean proof:
 $$`
 \begin{aligned}
   ∑_{k=0}^n η^2_{k+l+1}
-  &≤ ∑_{k=0}^n [ρ_{est}(δ) η^2_{k+l} + C_{est}(δ) 𝕕[𝒯_{k+l+1}; U(𝒯_{k+l+1}), U(𝒯_{k+l})]^2] \\
-  &= ∑_{k=0}^n [(ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) (𝕕[𝒯_{k+l+1}; U(𝒯_{k+l+1}), U(𝒯_{k+l})]^2 - v C_{est}(δ)^{-1} η^2_{k+l})] \\
-  &≤ ∑_{k=0}^n [(ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) (𝕕[𝒯_{k+l+1}; U(𝒯_{k+l+1}), U(𝒯_{k+l})]^2 - v C_{est}(δ)^{-1} (C_{rel}^{-1} 𝕕[𝒯_{k+l}; u, U(𝒯_{k+l})])^2)] \\
-  &= ∑_{k=0}^n [(ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) (𝕕[𝒯_{k+l+1}; U(𝒯_{k+l+1}), U(𝒯_{k+l})]^2 - \frac{v}{C_{rel}^2 C_{est}(δ)} 𝕕[𝒯_{k+l}; u, U(𝒯_{k+l})]^2)] \\
-  &= ∑_{k=0}^n [(ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) (𝕕[𝒯_{k+l+1}; U(𝒯_{k+l+1}), U(𝒯_{k+l})]^2 - ε_{qo} 𝕕[𝒯_{k+l}; u, U(𝒯_{k+l})]^2)] \\
-  &= ∑_{k=0}^n (ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) ∑_{k=0}^n (𝕕[𝒯_{k+l+1}; U(𝒯_{k+l+1}), U(𝒯_{k+l})]^2 - ε_{qo} 𝕕[𝒯_{k+l}; u, U(𝒯_{k+l})]^2) \\
+  &≤ ∑_{k=0}^n [ρ_{est}(δ) η^2_{k+l} + C_{est}(δ) 𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2] \\
+  &= ∑_{k=0}^n [(ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) (𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2 - v C_{est}(δ)^{-1} η^2_{k+l})] \\
+  &≤ ∑_{k=0}^n [(ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) (𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2 - v C_{est}(δ)^{-1} (C_{rel}^{-1} 𝕕[\mathcal{T}_{k+l}; u, U(\mathcal{T}_{k+l})])^2)] \\
+  &= ∑_{k=0}^n [(ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) (𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2 - \frac{v}{C_{rel}^2 C_{est}(δ)} 𝕕[\mathcal{T}_{k+l}; u, U(\mathcal{T}_{k+l})]^2)] \\
+  &= ∑_{k=0}^n [(ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) (𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2 - ε_{qo} 𝕕[\mathcal{T}_{k+l}; u, U(\mathcal{T}_{k+l})]^2)] \\
+  &= ∑_{k=0}^n (ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) ∑_{k=0}^n (𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2 - ε_{qo} 𝕕[\mathcal{T}_{k+l}; u, U(\mathcal{T}_{k+l})]^2) \\
   &≤ ∑_{k=0}^n (ρ_{est}(δ) + v) η^2_{k+l} + C_{est}(δ) C_{qo} η^2_l
 \end{aligned}
 `
