@@ -61,11 +61,11 @@ $$`
 `
 we can find a $`δ > 0` such that
 $$`
-ε_{qo} < \frac{1-(1+δ)(1-(1-ρ_{\mathrm{red}})θ)}{C_{\mathrm{rel}}^2 (C_{\mathrm{red}} + (1+δ⁻¹)C_{\mathrm{stab}}^2) ≤ ε^*_{qo}(θ).
+ε_{qo} < \frac{1-(1+δ)(1-(1-ρ_{\mathrm{red}})θ)}{C_{\mathrm{rel}}^2 (C_{\mathrm{red}} + (1+δ⁻¹)C_{\mathrm{stab}}^2)} ≤ ε^*_{qo}(θ).
 `
 It can be shown that this $`δ` in fact satisfies the properties we need.
 Due to the way Lean internally defines suprema over the positive
-reals it is highly technical and we will only cite the statement here.
+reals it is very technical and we will only cite the statement here.
 The full proof can be found in the Lean source repository.
 
 ```
@@ -89,14 +89,18 @@ lemma cancel {δ a} (hδ : δ > 0) : a * (alg.C_rel^2 * alg.C_est δ / (alg.C_re
 ## Main Proof
 
 We will present the proof in the interlaced format again as it is quite lenghty.
-In the typeset versions we will also use the shifted sums that start from zero
+In the typeset versions we will use the shifted sums that start from zero
 because the proof steps are rather technical and alignment with
 the Lean implementation is preferrable. Because the exact number of
-summands is not very relevant, we write the sums up to an index $`n`.
-Because lean sums over a range of natural numbers have an exclusive upper limit
-the sums correspond with the Lean sums
-Also, we define an analogon
-to `gη2_seq` with $$`η^2_n \coloneqq η^2(\mathcal{T}_{n}, U(\mathcal{T}_{n}))`
+summands is not very relevant in the utility statements
+we will show, the Lean code uses an arbitrary $`N∈ℕ` as an upper sum index.
+To improve legibility we will write the typeset version of the sums up to
+the index $`n` which corresponds with the Lean sums via $`n = N - 1`
+because Lean sums over a range of natural numbers have an exclusive upper limit.
+
+We define an analogon
+to `gη2_seq` with
+$$`η^2_n \coloneqq η^2(\mathcal{T}_{n}, U(\mathcal{T}_{n}))`
 
 We start the proof by taking a concrete $`δ > 0` such that
 $`ρ_{\mathrm{est}}(δ) < 1` (estimator reduction applies) and
@@ -132,11 +136,10 @@ theorem summability : uniform_summability alg.nn_gη_seq := by
 
 ```
 
-The first step is to show
+Now the first step is to show
 $$`
 \begin{aligned}
-  ∑_{k=0}^n η^2_{k+l+1} &≤ ∑_{k=0}^n (ρ_{\mathrm{est}}(δ) + v) η^2_{k+l} \\
-  &\quad + C_{\mathrm{est}}(δ) C_{\mathrm{qo}} η^2_l
+  ∑_{k=0}^n η^2_{k+l+1} &≤ ∑_{k=0}^n (ρ_{\mathrm{est}}(δ) + v) η^2_{k+l} + C_{\mathrm{est}}(δ) C_{\mathrm{qo}} η^2_l
 \end{aligned}
 `
 for all $`n,l ∈ ℕ`
@@ -145,7 +148,7 @@ This can be formulated in a calculation that is ideal for finding a
 Lean proof:
 $$`
 \begin{aligned}
-  ∑_{k=0}^n η^2_{k+l+1}
+  &∑_{k=0}^n η^2_{k+l+1} \\
   &≤ ∑_{k=0}^n [ρ_{\mathrm{est}}(δ) η^2_{k+l} + C_{\mathrm{est}}(δ) 𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2] \\
   &= ∑_{k=0}^n [(ρ_{\mathrm{est}}(δ) + v) η^2_{k+l} + C_{\mathrm{est}}(δ) (𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2 - v C_{\mathrm{est}}(δ)^{-1} η^2_{k+l})] \\
   &≤ ∑_{k=0}^n [(ρ_{\mathrm{est}}(δ) + v) η^2_{k+l} + C_{\mathrm{est}}(δ) (𝕕[\mathcal{T}_{k+l+1}; U(\mathcal{T}_{k+l+1}), U(\mathcal{T}_{k+l})]^2 - v C_{\mathrm{est}}(δ)^{-1} (C_{\mathrm{rel}}^{-1} 𝕕[\mathcal{T}_{k+l}; u, U(\mathcal{T}_{k+l})])^2)] \\
@@ -155,8 +158,10 @@ $$`
   &≤ ∑_{k=0}^n (ρ_{\mathrm{est}}(δ) + v) η^2_{k+l} + C_{\mathrm{est}}(δ) C_{\mathrm{qo}} η^2_l
 \end{aligned}
 `
+The first estimate is the estimator reduction, the second one uses reliability and the third
+is an application of general quasi-orthogonality (A3).
 
-In the Lean proof we continue with this chain of reasoning:
+In the Lean proof we continue by showing the estimate using this exact chain of inequalities:
 ```anchor summability_2
   have : ∀ N l:ℕ, ∑ k ∈ range N, alg.gη2_seq (k + l + 1)
       ≤ ∑ k ∈ range N, (alg.ρ_est δ + v) * alg.gη2_seq (k + l)
@@ -255,11 +260,12 @@ Using this first result we can continue to show
 $$`
 (1 - (ρ_{\mathrm{est}}(δ) + ν)) ∑_{k=0}^n η^2_{k+l+1} ≤ (C_{\mathrm{est}}(δ) C_{\mathrm{qo}} + ρ_{\mathrm{est}}(δ) + ν) η^2_l
 `
+for any $`n,l∈ℕ`.
 
 This follows from the calculation
 $$`
 \begin{aligned}
-  (1 - (ρ_{\mathrm{est}}(δ) + ν)) ∑_{k=0}^n η^2_{k+l+1}
+  &(1 - (ρ_{\mathrm{est}}(δ) + ν)) ∑_{k=0}^n η^2_{k+l+1} \\
   &= (1 - (ρ_{\mathrm{est}}(δ) + ν)) (∑_{k=0}^n η^2_{k+l+1} + η^2_l - η^2_l) \\
   &= (1 - (ρ_{\mathrm{est}}(δ) + ν)) ∑_{k=0}^{n+1} η^2_{k+l} - (1 - (ρ_{\mathrm{est}}(δ) + ν)) η^2_l \\
   &= (1 - (ρ_{\mathrm{est}}(δ) + ν)) (∑_{k=0}^n η^2_{k+l} + η^2_{n+l+1}) - (1 - (ρ_{\mathrm{est}}(δ) + ν)) η^2_l \\
@@ -272,7 +278,9 @@ $$`
 \end{aligned}
 `
 where the first inequality uses the fact that $`(1-(ρ_{\mathrm{est}}(δ)+v)) < 1` and
-the second one is the previous step of the proof. In Lean this
+the second one is the previous step of the proof.
+
+In Lean this
 translates to the following section
 ```anchor summability_3
   have : ∀ N l:ℕ, (1-(alg.ρ_est δ + v)) * ∑ k ∈ range N, alg.gη2_seq (k + l + 1)
@@ -334,14 +342,15 @@ translates to the following section
   }
 ```
 
-Now noting that $`0 < 1 - (ρ_{\mathrm{est}}(δ) + v)` we can divide on both
-sides and setting $`C \coloneqq \frac{(C_{\mathrm{est}}(δ) C_{\mathrm{qo}} + ρ_{\mathrm{est}}(δ) + ν)}{1 - (ρ_{\mathrm{est}}(δ) + v)}`
-arrive at
+Now, observing that $`0 < 1 - (ρ_{\mathrm{est}}(δ) + v)`, we can divide on both
+sides and set
+$$`C_3 \coloneqq \frac{(C_{\mathrm{est}}(δ) C_{\mathrm{qo}} + ρ_{\mathrm{est}}(δ) + ν)}{1 - (ρ_{\mathrm{est}}(δ) + v)}`
+to arrive at
 $$`
-∑_{k=0}^n η^2_{k+l+1} ≤ C η^2_l
+∑_{k=0}^n η^2_{k+l+1} ≤ C_3 η^2_l.
 `
 
-In Lean we prove this as the key observation
+In Lean we prove this key observation by
 ```anchor summability_4
   let C := (alg.C_est δ * alg.C_qo + alg.ρ_est δ + v)/(1-(alg.ρ_est δ + v))
 
@@ -355,8 +364,8 @@ In Lean we prove this as the key observation
     · linarith [hv₁]
 ```
 
-Because the upper bound is independent of $`n` we also have summability of
-$`(η_n)`:
+Because the upper bound is independent of $`n` we also can show summability of
+$`(η_n)` using {anchorTerm summability_5}`summable_of_sum_range_le`:
 ```anchor summability_5
   have summable : Summable alg.gη2_seq := by
     apply (summable_nat_add_iff 1).mp
@@ -368,14 +377,13 @@ $`(η_n)`:
     simpa using this
 ```
 
-Now mathematically the proof is finished, we have uniform summability of $`(η_n)`.
-However, in Lean we need some glueing again because we defined
-the summability
-statements in the {ref "summability_equivalence"}[summability equivalence] only
-for sequences in the `NNReal`s.
-So we need to carry what we have shown over to the
-NNReal version of $`η`, namely {anchorTerm summability_6}`alg.gη2_seq_nonneg`.
-Also a proof of $`C > 0` is necessary.
+Now mathematically the proof is finished, we practically have uniform summability of $`(η_n)`.
+In Lean however, we need some glueing again because the summability
+statements in the {ref "summability_equivalence"}[summability equivalence] were defined
+only for sequences in the `NNReal`s.
+Thus, we need to carry what we have shown over to the
+`NNReal` version of $`η`, namely {anchorTerm summability_6}`alg.gη2_seq_nonneg`.
+Of course a proof of $`C_3 > 0` is necessary.
 
 ```anchor summability_6
   constructor
@@ -419,3 +427,5 @@ Also a proof of $`C > 0` is necessary.
 The `constructor` makes us first show summability of
 {anchorTerm summability_6}`alg.gη2_seq_nonneg`
 and then the estimate part of uniform summability.
+
+This closes the goal of the theorem and the proof is finished.

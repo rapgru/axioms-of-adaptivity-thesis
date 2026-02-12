@@ -21,7 +21,7 @@ We have seen four lemmas of *AoA* formalized in Lean.
 When seen as a case study, we can definitely say
 that Lean and especially the ecosystem including {ref "mathlib"}[mathlib4]
 is already very apt to prove numerical theorems in. All the basic
-infrastructure is already there, starting with a formalization
+infrastructure is there, starting with a formalization
 in this field is effortless.
 
 On the other hand, while definitions are very quick to translate into Lean,
@@ -31,24 +31,24 @@ proving theorems about the objects one has defined is very far from effortless.
   An example that appeared very often in this documentation is that
   Lean required explicit proofs of non-negativity. A trained eye
   just "see" that a term is non-negative, but in Lean this could turn into
-  an auxiliary proof that costs you half an hour.
+  an auxiliary proof that costs half an hour.
   Of course this is exactly where automated tools, which are
   a key component of Lean, can be help. As their improvement is a high priority goal
   in the roadmap, in the future Lean might catch up
   and reduce the effort needed to show facts that are obvious to humans.
-- Additional complexity for the type of proofs we have
+- Additional complexity in the formalization of the type of proofs we have
   seen was arranging the proof in a way that it fits into a
   calculation (`calc`-block). While it turned out to be
   a very robust method, it requires fitting the whole proof into a
-  chain of inequalities before you can start coding.
+  chain of inequalities before one can start coding.
 
-Where did this bring us?
+What did this formalization achieve?
 - The lemmata we have formalized have been acknowledged as correct by
   Lean. This means that, assuming there Lean does not have compiler errors,
   they are implied by an axiom system that can be used as a
   foundation of mathematics.
-- A very small index mistake was found in Lemma 4.7
-- The missing assumption $`η ≠ 0` was found in Lemma 4.9
+- A very small index mistake was found in Lemma 4.7 of *AoA*
+- The missing assumption $`a_n ≠ 0` was found in Lemma 4.9
 - The constants that depend on the choice of $`δ` are now
   handled very precisely. Theorem statements including these
   constants are now very explicit about the role $`δ` plays in them,
@@ -57,12 +57,16 @@ Where did this bring us?
 
 The theorems we formalized span about 2.5 pages in the _Axioms of adaptivity_
 paper. In Lean it amounts to about 1700 lines of complex code that
-was quite the effort to implement. So the question we can only leave open is,
-if this huge effort in comparison to a standard proof
-is worth it to gain an ultimate answer about the correctness of the proof.
+was quite an effort to implement. This is at least a tenfold
+increase in lenght when we print out the source code,
+which should just underline that a formalization
+is serious work. The question we can only leave open is,
+if this effort
+is worth it to gain an ultimate answer about the correctness of the proof
+in the context of computer numerics.
 
-An interesting aspect of formal verification in the context of computer
-numerics is that with Lean it is possible to prove correctness
+An interesting aspect of formal verification in the context of computational science
+is that with Lean it is possible to prove correctness
 of imperative programs (e.g. for the Rust programming language {citet ho2022aeneas}[]).
 One could explore for example if it is possible to implement
 an AFEM solver and prove the axioms of adaptivity for it.

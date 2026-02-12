@@ -8,6 +8,7 @@ import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Algebra.BigOperators.Intervals
 import Mathlib.Order.Interval.Set.Basic
 import Mathlib.Tactic.Common
+import Mathlib.Topology.Algebra.InfiniteSum.ENNReal
 
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
@@ -29,11 +30,12 @@ This chapter formalizes the proof of the analytical summability Lemma 4.9 from *
 It states
 
 > *Lemma 4.9*: The following statements are pairwise equivalent:
-  1.) _Uniform summability_: There exists a constant $`C_3 > 0` such that
+
+  1. _Uniform summability_: There exists a constant $`C_3 > 0` such that
       $$`∑_{k=l+1}^∞ η(\mathcal{T}_k; U(\mathcal{T}_k))² ≤ C_3 η(\mathcal{T}_l; U(\mathcal{T}_l))² \quad \text{for all } l ∈ ℕ_0.`
-  2.) _Inverse summability_: For all $`s > 0`, there exists a constant $`C_4 > 0` such that
+  2. _Inverse summability_: For all $`s > 0`, there exists a constant $`C_4 > 0` such that
       $$`∑_{k=0}^{l-1} η(\mathcal{T}_k; U(\mathcal{T}_k))^{-1/s} ≤ C_4 η(\mathcal{T}_l; U(\mathcal{T}_l))^{-1/s} \quad \text{for all } l ∈ ℕ_0.`
-  3.) _Uniform R-linear convergence on any level_: There exist constants $`0 < ρ_1 < 1` and $`C_5 > 0` such that
+  3. _Uniform R-linear convergence on any level_: There exist constants $`0 < ρ_1 < 1` and $`C_5 > 0` such that
       $$`η(\mathcal{T}_{l+k}; U(\mathcal{T}_{l+k}))² ≤ C_5 ρ_1^k η(\mathcal{T}_l; U(\mathcal{T}_l))² \quad \text{for all } k, l ∈ ℕ_0.`
 
 # Formal statement
@@ -41,33 +43,34 @@ It states
 tag := "lem47_formal_statement"
 %%%
 
-While a sharp observer might immediately spot a missing assumption in this theorem,
-the author only did so after the Lean proof did not work out at some point, which
+After the Lean proof did not work out at some point, the author
+discovered that the lemma misses a small assumption, which
 shows that a formalization can help spot mistakes of this sort. The problem is that
-inverse summability is only well-defined if $∀ n ∈ ℕ_0 : a_n ≠ 0$.
--- Ramifications in AoA?
+inverse summability is only well-defined if $`∀ n ∈ ℕ : a_n ≠ 0`.
 
 We can also observe, that the statement is equally true if we replace the
-global error estimator by an arbitrary non-negative sequence $`(a_n)`. Because $`η`
+global error estimator by an arbitrary non-negative sequence $`(a_n)_{n∈ℕ}`. Because $`η`
 is non-negative by definition, we can recover the original form
 by plugging in the sequence $`(η(\mathcal{T}_l, U(\mathcal{T}_l)))`. So we
 will show the equivalence in the form:
 
-> For any *positive* sequence $`(a_n)`, the following statements are pairwise equivalent:
-  1.) _Uniform summability_: There exists a constant $`C_3 > 0` such that
+> For any *positive* sequence $`(a_n)_{n∈ℕ}`, the following statements are pairwise equivalent:
+  1. _Uniform summability_: There exists a constant $`C_3 > 0` such that
       $$`∑_{k=l+1}^∞ a_k² ≤ C_3 a_l² \quad \text{for all } l ∈ ℕ.`
-  2.) _Inverse summability_: For all $`s > 0`, there exists a constant $`C_4 > 0` such that
+  2. _Inverse summability_: For all $`s > 0`, there exists a constant $`C_4 > 0` such that
       $$`∑_{k=0}^{l-1} a_k^{-1/s} ≤ C_4 a_l^{-1/s} \quad \text{for all } l ∈ ℕ.`
-  3.) _Uniform R-linear convergence on any level_: There exist constants $`0 < ρ_1 < 1` and $`C_5 > 0` such that
-      $$`a{l+k}² ≤ C_5 ρ_1^k a_l² \quad \text{for all } k, l ∈ ℕ_0.`
+  3. _Uniform R-linear convergence on any level_: There exist constants $`0 < ρ_1 < 1` and $`C_5 > 0` such that
+      $$`a{l+k}² ≤ C_5 ρ_1^k a_l² \quad \text{for all } k, l ∈ ℕ.`
 
-To translate this into Lean, we first define the statements 1-3.) as `Prop`s
+To translate this into Lean, we first define the statements 1-3. as `Prop`s
 ```anchor summability_defs
 def uniform_summability (a : ℕ → NNReal) :=
-  Summable (a^2) ∧ ∃ C > 0, ∀ l : ℕ, ∑' k, (a^2) (k + l + 1) ≤ C * (a^2) l
+  Summable (a^2)
+  ∧ ∃ C > 0, ∀ l : ℕ, ∑' k, (a^2) (k + l + 1) ≤ C * (a^2) l
 
 def inverse_summability (a : ℕ → NNReal) :=
-  ∀ s : ℝ, s > 0 → ∃ C > 0, ∀ l : ℕ, ∑ k ∈ range l, (a k)^(-1/s) ≤ C * (a l)^(-1/s)
+  ∀ s : ℝ, s > 0 →
+    ∃ C > 0, ∀ l : ℕ, ∑ k ∈ range l, (a k)^(-1/s) ≤ C * (a l)^(-1/s)
 
 def uniform_r_linear_convergence (a : ℕ → NNReal) :=
   ∃ q ∈ (Set.Ioo 0 1), ∃ C > 0, ∀ k, ∀ l,
@@ -81,23 +84,23 @@ and there is no syntax to change this summation range.
 
 Also, because
 an infinite sum appears in uniform summability, we need to add the technical
-assumption that $`(a_n)` is summable in the first statement.
+assumption that $`(a_n)_{n∈ℕ}` is summable in the first statement.
 This is essential, because by convention mathlib4 handles the edge cases
 of mathematical operators in the following way: Instead of
 throwing an error or having operators only partially defined, when the
 value of the operator is nonsensical a designated instance of the result datatype
-is the result value. In the case of a divergent sum in the real numbers this designated
+is returned. In the case of a divergent sum in the real numbers this designated
 instance is the real $`0`. So to gain information when we use {anchorTerm summability_defs}`uniform_summability`
 as an assumption we need to know that $`a_n` is summable, otherwise the estimate
-is of no value because it says $`0 ≤ C * (a^2) l` which is always true.
+is of no value because it says $`0 ≤ C a^2_l` which is always true.
 This is no discrepancy to the text version of the theorem, because
-when the reader will understand that the inequality sign of the statement also
+a human reader will understand that the inequality sign of the statement in *AoA* also
 says that the sum has to converge. In other words, in *AoA* the $`≤` sign means
-more than the relation $`≤ ⊆ ℝ × ℝ`, while in Lean the latter relation is what
+more than the relation $`(≤) ⊆ ℝ × ℝ`, while in Lean the latter relation is what
 we have at our hands.
 
 We fix {anchorTerm a_var}`a` to be a function from {anchorTerm a_var}`ℕ` to the non-negative
-real numbers {anchorTerm a_var}`NNReal`.
+real numbers {anchorTerm a_var}`NNReal`, i.e. a sequence.
 ```anchor a_var
 variable {a : ℕ → NNReal}
 ```
@@ -107,9 +110,9 @@ Now we can formulate the theorem in Lean as
 theorem summability_equivalence (ha : ∀ n, a n ≠ 0) :
     List.TFAE [uniform_summability a, inverse_summability a, uniform_r_linear_convergence a] := by sorry
 ```
-where `List.TFAE` stands for "the following are equivalent" and is just
+where {lean}`List.TFAE` stands for "the following are equivalent" and is just
 pairwise equivalence between all members of the argument behind the scenes.
-A benefit of the `List.TFAE` property is that there are accompanying
+A benefit of the {lean}`List.TFAE` property is that there are accompanying
 tactics that construct the pairwise equivalences if sufficiently
 many implications between the statements are given.
 
@@ -123,7 +126,7 @@ theorem summability_equivalence (ha : ∀ n, a n ≠ 0) :
   tfae_have 2 → 3 := uniform_r_linear_of_inverse ha
   tfae_finish
 ```
-where the referenced proofs are the implications 1.) $`⇔` 3.) and 2.) $`⇔` 3.).
+where the referenced proofs are the implications 1. $`⇔` 3. and 2. $`⇔` 3.
 This approach follows the proof in *AoA*.
 
 # Proof
@@ -132,10 +135,10 @@ We will now prove the implication one after the other.
 
 ## Uniform Summability implies Uniform R-linear
 
-We begin by showing an upper bound for the series $`\sum_{k=l+n}^{\infty} \quad a_{k}^{2}`
+We begin by showing an upper bound for the series $`\sum_{k=l+n}^{\infty} a_{k}^{2}`
 by induction. In precise terms we will show that the estimate
 $$`
-∀ l,n ∈ ℕ_0 : \sum_{k=l+n}^{\infty} a_{k}^{2} \leq\left(\frac{1}{1+C^{-1}}\right)^{n} \sum_{k=l}^{\infty} a_{k}^{2}
+∀ l,n ∈ ℕ : \sum_{k=l+n}^{\infty} a_{k}^{2} \leq\left(\frac{1}{1+C^{-1}}\right)^{n} \sum_{k=l}^{\infty} a_{k}^{2}
 `
 holds whenever uniform summability holds with a constant $`C`.
 
@@ -257,7 +260,7 @@ Defining the function `g` seems extraneous at first glance, but is an effective
 trick here to make Lean apply {anchorTerm uniform_r_linear_of_uniform}`Summable.le_tsum`
 correctly.
 Note that this is the proof where the summability assumption
-for $`(a_n)` is essential to use. We need it to use mathlib theorems
+for $`(a_n)_{n∈ℕ}` is essential to use. We need it to use mathlib theorems
 about series that are not true for divergent sums (which are equal to $`0`).
 Estimating one summand with the whole series and splitting of one summand
 is where we needed a summability proof.
@@ -312,20 +315,21 @@ using exactly this calculation in a `have`-block:
         exact tsum_geometric_of_lt_one (le_of_lt hq.1) hq.2
       _ = C * q * (1 - q)⁻¹ * (a^2) l := by ring
 ```
-In the first inquality we use uniform R-linear convergence and in
+In the first inequality we use uniform R-linear convergence and in
 the second one the convergence of the geometric series because $`q<1`.
 
 Now we can prove uniform summability, which means we have to
-show that $`(a_n)` is summable and the bound
+show that $`(a_n)_{n∈ℕ}` is summable and that the bound
 $$`
-∑_{k=l+1}^∞ η(\mathcal{T}_k; U(\mathcal{T}_k))² ≤ C_3 η(\mathcal{T}_l; U(\mathcal{T}_l))².
+∑_{k=l+1}^∞ η(\mathcal{T}_k; U(\mathcal{T}_k))² ≤ C_3 η(\mathcal{T}_l; U(\mathcal{T}_l))²
 `
+holds.
 
 We start with the bound, this follows directly from
-our uniform bound by taking the limit (with `NNReal.tsum_le_of_sum_range_le`
+our uniform bound by taking the limit (with {lean}`NNReal.tsum_le_of_sum_range_le`
 mathlib theorem)
 and choosing
-$`C \coloneqq C q (1-q)⁻¹`. Of course we need to
+$`C_3 \coloneqq C q (1-q)⁻¹`. Of course we need to
 prove that this constant is greater than zero. In Lean we
 have
 ```anchor uniform_of_uniform_r_linear_3
@@ -344,9 +348,9 @@ have
 where the `constructor` and `swap` tactics set us
 up to show the bound first and then summability.
 
-So what remains is that $`(a_n)` is actually summable.
+So what remains is that $`(a_n)_{n∈ℕ}` is actually summable.
 This follows from our uniform partial sum bound by
-setting $`l=0`. By calculating
+setting $`l=0`. We calculate
 $$`
 \begin{aligned}
 ∑_{k=0}^{n-1} a_k^2 &≤ ∑_{k=0}^n a_k^2 \\
@@ -354,8 +358,8 @@ $$`
 &≤ C q (1-q)⁻¹ a_0^2 + a_0^2
 \end{aligned}
 `
-we gain a constant bound for the partial sum which means
-that $`(a_n)` must be summable. This transfers to Lean as
+and gain a constant bound for the partial sum which means
+that $`(a_n)_{n∈ℕ}` must be summable. This transfers to Lean as
 ```anchor uniform_of_uniform_r_linear_4
   · apply NNReal.summable_of_sum_range_le
 

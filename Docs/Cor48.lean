@@ -537,7 +537,7 @@ sandwich $`(𝕕(\mathcal{T}_l, u, U(\mathcal{T}_l)))_{l∈ℕ}`
 between the zero-convergent sequence $`(\sqrt{η^2(\mathcal{T}_l, U(\mathcal{T}_l))})_{l∈ℕ}` and the constant
 zero sequence:
 $$`
-0 ≤ 𝕕(\mathcal{T}_l, u, U(\mathcal{T}_l)) ≤ C_{\mathrm{rel}} √{η^2(\mathcal{T}_l, U(\mathcal{T}_l))}
+0 ≤ 𝕕(\mathcal{T}_l, u, U(\mathcal{T}_l)) ≤ C_{\mathrm{rel}} \sqrt{η^2(\mathcal{T}_l, U(\mathcal{T}_l))}
 `
 This is translates nicely to a Lean proof using the {anchorTerm convergence_of_apriori}`squeeze_zero`
 theorem from mathlib.
