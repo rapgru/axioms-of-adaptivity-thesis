@@ -2,7 +2,7 @@ import VersoManual
 import Docs.Papers
 
 open Verso.Genre Manual
-open Verso.Genre.Manual.InlineLean
+open Verso.Genre.Manual.InlineLean hiding module
 open Verso.Code.External
 open Docs
 
@@ -19,21 +19,24 @@ tag := "estimator_reduction"
 
 This chapter formalizes the proof of Lemma 4.7 from *AoA* which reads as
 
-> *Lemma 4.7*: Stability (A1) and Reduction (A2) imply the estimator reduction
-  $$`η(\mathcal{T}_{l+1}; U(\mathcal{T}_{l+1}))² ≤ ρ_{est} η(\mathcal{T}_l; U(\mathcal{T}_l))² + C_{est} 𝕕[\mathcal{T}_{l+1}; U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]²`
-  for all $`l ∈ ℕ_0` with the constants $`0 < ρ_{est} < 1` and $`C_{est} > 0` which
+> *Lemma 4.7*: Stability (A1) and Reduction (A2) imply the _estimator reduction_ property
+  $$`η(\mathcal{T}_{l+1}; U(\mathcal{T}_{l+1}))² ≤ ρ_{\mathrm{est}} η(\mathcal{T}_l; U(\mathcal{T}_l))² + C_{\mathrm{est}} 𝕕[\mathcal{T}_{l+1}; U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]²`
+  for all $`l ∈ ℕ` with the constants $`0 < ρ_{\mathrm{est}} < 1` and $`C_{\mathrm{est}} > 0` which
   relate via
-  $$`ρ_{est} = (1 + δ)(1 - (1 - ρ_{\mathrm{red}})θ) \quad \text{and} \quad C_{est} = C_{\mathrm{red}} + (1 + δ⁻¹)C_{\mathrm{stab}}²`
-  for all sufficiently small $`δ` such that $`ρ_{est} < 1`.
+  $$`
+    \begin{aligned}
+    ρ_{\mathrm{est}} &= (1 + δ)(1 - (1 - ρ_{\mathrm{red}})θ) \quad \text{and} \\ C_{\mathrm{est}} &= C_{\mathrm{red}} + (1 + δ⁻¹)C_{\mathrm{stab}}²`
+  for all sufficiently small $`δ` such that $`ρ_{\mathrm{est}} < 1`.
 
 All the Lean code in this chapter is inside the `AdaptiveAlgorithm` namespace
 so all definitions and theorems can be accessed on an instance of the
-structure `AdaptiveAlgorithm` via dot notation. Also globally we introduce
+structure `AdaptiveAlgorithm` via dot notation. We introduce
 the variable
 ```anchor alg
 variable (alg : AdaptiveAlgorithm α β)
 include alg
 ```
+globally.
 
 # Formal Statement
 %%%
@@ -41,11 +44,13 @@ tag := "lemma47_formal_statement"
 %%%
 
 The wording "for all sufficiently small" hides the dependency
-of the "constants" $`ρ_est` and $`C_est` on $`δ`. For the formalized version we
+of the "constants" $`ρ_{\mathrm{est}}` and $`C_{\mathrm{est}}` on $`δ`. For the formalized version we
 define these values as functions of $`δ` and show the estimator
-reduction property for all $`δ > 0` such that $`ρ_{est}(δ) < 1`.
+reduction property for all $`δ > 0` such that $`ρ_{\mathrm{est}}(δ) < 1`,
+which is much more explicit.
 
-We define the functions `ρ_est` and `C_est` as
+We define the functions {anchorTerm lemma47_consts}`ρ_est`
+and {anchorTerm lemma47_consts}`C_est` as
 ```anchor lemma47_consts
 def ρ_est δ := (1+δ) * (1 - (1 - alg.ρ_red) * alg.θ)
 noncomputable def C_est δ := alg.C_red + (1 + δ⁻¹) * alg.C_stab ^ 2
@@ -61,21 +66,20 @@ theorem estimator_reduction : ∀ δ > 0, (alg.ρ_est δ < 1) →
 
 # Utility lemmas
 
-Before starting on the actual proof,
-we show a few utility lemmata.
+Before we start with the actual proof, we show a few utility lemmata.
 
 ## Dörfler for refined elements
 
 The first one is a Dörfler-type estimate for
 the only the elements that have been refined:
 
-> *Lemma (Dörfler for refined elements)*: For all $`l ∈ ℕ_0` we have the
+> *Lemma (Dörfler for refined elements)*: For all $`l ∈ ℕ` we have the
   estimate
   $$`
-  θ η^2(\mathcal{T}_{l}, U(\mathcal{T}_{l})) ≤ \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_{t}^2(\mathcal{T}_{l}, U(\mathcal{T}_{l}))
+  θ η^2(\mathcal{T}_{l}, U(\mathcal{T}_{l})) ≤ \sum_{T \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_{T}^2(\mathcal{T}_{l}, U(\mathcal{T}_{l}))
   `
 
-The proof is straightforward, it follows from the Dörfler property,
+The proof is straightforward. It follows from the Dörfler property,
 $`ℳ_l ⊆ \mathcal{T}_l \setminus \mathcal{T}_{l+1}` and that a sum does not increase when
 we add non-negative summands. In Lean the proof reads as
 ```anchor doerfler_for_refined_elements
@@ -84,15 +88,15 @@ lemma doerfler_for_refined_elements :
       ≤ ∑ t ∈ (alg.𝒯 l \ alg.𝒯 (l+1)), alg.η (alg.𝒯 l) (alg.U <| alg.𝒯 l) t ^ 2 := by
   intros l
   calc alg.θ * gη2_seq alg l
-    _ ≤ ∑ t ∈ alg.ℳ l, alg.η (alg.𝒯 l) (alg.U <| alg.𝒯 l) t ^ 2 := by exact (alg.hℳ l).2.1
+    _ ≤ ∑ t ∈ alg.ℳ l, alg.η (alg.𝒯 l) (alg.U <| alg.𝒯 l) t ^ 2 := (alg.hℳ l).2.1
     _ ≤ ∑ t ∈ (alg.𝒯 l \ alg.𝒯 (l+1)), alg.η (alg.𝒯 l) (alg.U <| alg.𝒯 l) t ^ 2 := by
-      apply Finset.sum_le_sum_of_subset_of_nonneg
-      · exact (alg.hℳ l).1
-      · exact fun _ _ _ ↦ sq_nonneg _
+      apply Finset.sum_le_sum_of_subset_of_nonneg (alg.hℳ l).1
+      intros
+      apply sq_nonneg
 ```
 
 ## Estimate on Square of a Sum
-Another purely analytical utility lemmas we are going to use is
+Another purely analytical utility lemma we are going to use is the following
 
 > *Lemma (Square of Sum Estimate)*: For $`a,b ≥ 0` and $`δ > 0`
    $$`
@@ -105,50 +109,46 @@ To show this we first need a generalized Young inequality
 > *Lemma (Generalized Young inequality)*: For $`a,b ≥ 0`, $`δ > 0` and a Hölder-conjugate pair
   $`p,q` (meaning $`\frac1p = \frac1q`) the inequality
   $$`
-  ab ≤ \frac{δ}{p} a^p + \frac{1}{q δ^(\frac{q}{p})} b^q
+  ab ≤ \frac{δ}{p} a^p + \frac{1}{q δ^{\frac{q}{p}}} b^q
   ` holds.
 
 We first prove the Young-type inequality by estimating
 $$`
 \begin{aligned}
-ab &= ab (δ^{1/p} δ^{-1/p}) \\
-&= (a δ^{1/p}) (b δ^{-1/p}) \\
-&≤ \frac{(a δ^{1/p})^p}{p} + \frac{(b δ^{-1/p})^q}{q} \\
-&= \frac{δ}{p} a^p + \frac{1}{q δ^{q/p}} b^q
+ab &= ab (δ^{\frac{1}{p}} δ^{-\frac{1}{p}}) \\
+&= (a δ^{\frac{1}{p}}) (b δ^{-\frac{1}{p}}) \\
+&≤ \frac{(a δ^{\frac{1}{p}})^p}{p} + \frac{(b δ^{-\frac{1}{p}})^q}{q} \\
+&= \frac{δ}{p} a^p + \frac{1}{q δ^{\frac{q}{p}}} b^q
 \end{aligned}
 `
 where we have used the regular Young inequality in step three.
 This proof carries over to Lean using a `calc`-block:
 
-```
-lemma young_with_delta {a b δ p q : ℝ} (ha : 0 ≤ a)  (hb : 0 ≤ b) (hδ : 0 < δ) (hpq : p.HolderConjugate q): a*b ≤ δ/p * a^p + 1/(q*δ^(q/p)) * b^q := by {
+```module (module := AxiomsOfAdaptivity.Util) (anchor := young_with_delta)
+lemma young_with_delta {a b δ p q : ℝ} (ha : 0 ≤ a)  (hb : 0 ≤ b) (hδ : 0 < δ) (hpq : p.HolderConjugate q): a*b ≤ δ/p * a^p + 1/(q*δ^(q/p)) * b^q := by
   have hδ₂ := le_of_lt hδ
   have hpow_nonneg := Real.rpow_nonneg hδ₂
 
   calc a*b
     _ = a * b * (δ ^ p⁻¹ * (δ ^ p⁻¹)⁻¹) := by field_simp
     _ = a * δ ^ (1 / p) * (b * 1 / δ ^ (1 / p)) := by ring_nf
-    _ ≤ (a * δ ^ (1 / p)) ^ p / p + (b * 1 / δ ^ (1 / p)) ^ q / q := by {
+    _ ≤ (a * δ ^ (1 / p)) ^ p / p + (b * 1 / δ ^ (1 / p)) ^ q / q := by
       apply Real.young_inequality_of_nonneg _ _ hpq
       · exact mul_nonneg ha (hpow_nonneg _)
       · apply mul_nonneg <;> simp [hb, ha, hpow_nonneg]
-    }
-    _ = δ/p * a^p + (b * 1 / δ ^ (1 / p)) ^ q / q := by {
+    _ = δ/p * a^p + (b * 1 / δ ^ (1 / p)) ^ q / q := by
       rw [Real.mul_rpow ha <| hpow_nonneg _, ←Real.rpow_mul hδ₂]
       simp [inv_mul_cancel₀ <| Real.HolderTriple.ne_zero hpq, mul_comm]
       ring
-    }
-    _ = δ/p * a^p + 1/(q*δ^(q/p)) * b^q := by {
+    _ = δ/p * a^p + 1/(q*δ^(q/p)) * b^q := by
       field_simp
       rw [Real.div_rpow hb <| hpow_nonneg _, ←Real.rpow_mul hδ₂]
       ring_nf
-    }
-}
 ```
 
-Now we can show the estimate on the square of a sum again by
-doing a calculation involving the generalized Young equation
-with $`p=q=\frac12`.
+Now we can show the estimate on the square of a sum by
+doing an estimation involving the generalized Young equation
+with $`p=q=\frac12`:
 $$`
 \begin{aligned}
 (a+b)^2 &= a^2 + 2ab + b^2 \\
@@ -157,35 +157,35 @@ $$`
 \end{aligned}
 `
 
-This is also straightforward to show this way in Lean
-```
+This way, the Lean proof is also straightforward:
+```module (module := AxiomsOfAdaptivity.Util) (anchor := sum_square_le_square_sum)
 lemma sum_square_le_square_sum {a b : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) :
-    ∀ δ > 0, (a+b)^2 ≤ (1+δ)*a^2 + (1+δ⁻¹)*b^2 := by {
+    ∀ δ > 0, (a+b)^2 ≤ (1+δ)*a^2 + (1+δ⁻¹)*b^2 := by
   intros δ hδ
   have := young_with_delta ha hb hδ Real.HolderConjugate.two_two
   calc (a + b) ^ 2
     _ = a^2 + 2*(a*b) + b^2 := by ring
     _ ≤ a^2 + 2*(δ/2 * a^2 + 1/(2*δ) * b^2) + b^2 := by simpa using this
     _ = (1+δ)*a^2 + (1+δ⁻¹)*b^2 := by ring
-}
 ```
 
 ## Distance Estimate
 
 The last utility lemma we will show is that for $`a,b,c ∈ ℝ`, $`a ≥ 0` the
-condition $`|a-b| ≤ c` implies $`a^2 ≤ (b+c)^2`.
+implication
+$$`|a-b| ≤ c \;⇒\; a^2 ≤ (b+c)^2`
+holds.
 
-To show this we note that the condition especially implies $`a-b ≤ c`,
+To show this, we notice that the condition especially implies $`a-b ≤ c`,
 which means $`a ≤ b + c` by adding $`b`. Because by assumption $`a ≥ 0`
 and we can take the square and arrive at the desired result. The Lean version
-of this proof is
-```
+of this proof is equally short:
+```module (module := AxiomsOfAdaptivity.Util) (anchor := square_estimate_of_small_distance)
 lemma square_estimate_of_small_distance {a b c : ℝ} (ha : 0 ≤ a) (h : |a-b| ≤ c) :
-  a^2 ≤ (b+c)^2 := by {
-  have : a - b ≤ c := le_of_max_le_left h
-  have : a ≤ b + c := tsub_le_iff_left.mp this
+  a^2 ≤ (b+c)^2 := by
+  have := le_of_max_le_left h
+  have := tsub_le_iff_left.mp this
   exact pow_le_pow_left₀ ha this 2
-}
 ```
 
 # Proof of Estimator Reduction
@@ -215,11 +215,11 @@ explanation of the current calculation step.
 We start with
 $$`
 \begin{aligned}
-& η^2(𝒯_{l+1}, U(𝒯_{l+1})) \\
-&= \sum_{t \in 𝒯_{l+1} \setminus 𝒯_l} η_t^2(𝒯_{l+1}, U(𝒯_{l+1})) + \sum_{t \in 𝒯_l \cap 𝒯_{l+1}} η_t^2(𝒯_{l+1}, U(𝒯_{l+1}))
+& η^2(\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1})) \\
+&= \sum_{T \in \mathcal{T}_{l+1} \setminus \mathcal{T}_l} η_T^2(\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1})) + \sum_{T \in \mathcal{T}_l \cap \mathcal{T}_{l+1}} η_T^2(\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}))
 \end{aligned}
 `
-which hold by the definition of the global error and basic set identities. In Lean
+which holds by the definition of the global error and basic set identities. In Lean
 we essentially use the {anchorTerm estimator_reduction_2}`sum_union` theorem from
 mathlib:
 
@@ -237,8 +237,8 @@ Next, we apply the reduction property on refined elements (A2) to reach
 
 $$`
 \begin{aligned}
-&\le ρ_{\mathrm{red}} \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)) + C_{\mathrm{red}} 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
-&\quad + \sum_{t \in \mathcal{T}_l \cap \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1})).
+&\le ρ_{\mathrm{red}} \sum_{T \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)) + C_{\mathrm{red}} 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
+&\quad + \sum_{T \in \mathcal{T}_l \cap \mathcal{T}_{l+1}} η_T^2(\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1})).
 \end{aligned}
 `
 
@@ -259,8 +259,8 @@ Now, in one step we can estimate
 
 $$`
 \begin{aligned}
-&\le ρ_{\mathrm{red}} \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)) + C_{\mathrm{red}} 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
-&\quad + (1+δ) \sum_{t \in \mathcal{T}_l \cap \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)) + (1+δ⁻¹) C_{\mathrm{stab}}^2 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2
+&\le ρ_{\mathrm{red}} \sum_{T \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_T^2(\mathcal{T}_l, U(\mathcal{T}_l)) + C_{\mathrm{red}} 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
+&\quad + (1+δ) \sum_{T \in \mathcal{T}_l \cap \mathcal{T}_{l+1}} η_T^2(\mathcal{T}_l, U(\mathcal{T}_l)) + (1+δ⁻¹) C_{\mathrm{stab}}^2 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2
 \end{aligned}
 `
 by combining stability on non-refined element domains (A1) and the
@@ -293,13 +293,13 @@ two utility lemmas from above. The Lean proof for this step reads as
       all_goals apply_rules [sum_nonneg', fun _ ↦ sq_nonneg _]
 ```
 Here we use the `change` tactic in order to switch to an equivalent type for hypotheses
-{anchorTerm estimator_reduction_4}`this` in order for the `rel` tactic to suceed in
+{anchorTerm estimator_reduction_4}`this` in order for the `rel` tactic to succeed in
 closing one of the three goals.
 
-Then we rewrite
+Then we rewrite what we have
 $$`
 \begin{aligned}
-&= ρ_{\mathrm{red}} \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)) + (1+δ) \sum_{t \in \mathcal{T}_l \cap \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)) \\
+&= ρ_{\mathrm{red}} \sum_{T \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_T^2(\mathcal{T}_l, U(\mathcal{T}_l)) + (1+δ) \sum_{T \in \mathcal{T}_l \cap \mathcal{T}_{l+1}} η_T^2(\mathcal{T}_l, U(\mathcal{T}_l)) \\
 &\quad + (C_{\mathrm{red}} + (1+δ⁻¹) C_{\mathrm{stab}}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2
 \end{aligned}
 `
@@ -314,8 +314,9 @@ by basic algebra. Lean can prove this on its own using the `ring` tactic:
 Next, by definition of the global error $`η^2` and basic set identities
 $$`
 \begin{aligned}
-&= ρ_{\mathrm{red}} \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)) \\
-&\quad + (1+δ) \left(η^2(\mathcal{T}_l, U(\mathcal{T}_l)) - \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l))\right).
+&= ρ_{\mathrm{red}} \sum_{T \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_T^2(\mathcal{T}_l, U(\mathcal{T}_l)) \\
+&\quad + (1+δ) \left(η^2(\mathcal{T}_l, U(\mathcal{T}_l)) - \sum_{T \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_T^2(\mathcal{T}_l, U(\mathcal{T}_l))\right).
+&\quad + (C_{\mathrm{red}} + (1+δ⁻¹) C_{\mathrm{stab}}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
 \end{aligned}
 `
 
@@ -342,8 +343,9 @@ in the proof to go from the simpler inequality to the original goal on its own.
 Now, because $`δ > 0` we have
 $$`
 \begin{aligned}
+&\le (1+δ) ρ_{\mathrm{red}} \sum_{T \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_T^2(\mathcal{T}_l, U(\mathcal{T}_l)).
+&\quad + (1+δ) \left(η^2(\mathcal{T}_l, U(\mathcal{T}_l)) - \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l))\right) \\
 &\quad + (C_{\mathrm{red}} + (1+δ⁻¹) C_{\mathrm{stab}}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
-&\le (1+δ) ρ_{\mathrm{red}} \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l)).
 \end{aligned}
 `
 
@@ -362,8 +364,6 @@ The last steps are basic algebra and one application of the
 Doerfler marking for refined elements lemma.
 $$`
 \begin{aligned}
-&\quad + (1+δ) \left(η^2(\mathcal{T}_l, U(\mathcal{T}_l)) - \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l))\right) \\
-&\quad + (C_{\mathrm{red}} + (1+δ⁻¹) C_{\mathrm{stab}}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
 &= (1+δ) \left(η^2(\mathcal{T}_l, U(\mathcal{T}_l)) - (1 - ρ_{\mathrm{red}}) \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l))\right) \\
 &\quad + (C_{\mathrm{red}} + (1+δ⁻¹) C_{\mathrm{stab}}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
 &\le (1+δ) (η^2(\mathcal{T}_l, U(\mathcal{T}_l)) - (1 - ρ_{\mathrm{red}}) θ η^2(\mathcal{T}_l, U(\mathcal{T}_l))) \\

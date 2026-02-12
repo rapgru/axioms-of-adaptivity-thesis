@@ -2,7 +2,7 @@ import VersoManual
 import Docs.Papers
 
 open Verso.Genre Manual
-open Verso.Genre.Manual.InlineLean
+open Verso.Genre.Manual.InlineLean hiding module
 open Verso.Code.External
 open Docs
 
@@ -25,7 +25,7 @@ This chapter formalizes the proof of Corollary 4.8 from *AoA* which states
   `
   and have estimator reduction (for example from {ref "estimator_reduction"}[Lemma 4.7])
   $$`
-  η(\mathcal{T}_{l+1}; U(\mathcal{T}_{l+1}))² ≤ ρ_{est} η(\mathcal{T}_l; U(\mathcal{T}_l))² + C_{est} 𝕕[\mathcal{T}_{l+1}; U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]².
+  η(\mathcal{T}_{l+1}; U(\mathcal{T}_{l+1}))² ≤ ρ_{\mathrm{est}} η(\mathcal{T}_l; U(\mathcal{T}_l))² + C_{\mathrm{est}} 𝕕[\mathcal{T}_{l+1}; U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]².
   `
   This implies the convergence of the estimator $`
   \lim_{l \to \infty} η^2(\mathcal{T}_l, U(\mathcal{T}_l)) = 0
@@ -35,29 +35,29 @@ This chapter formalizes the proof of Corollary 4.8 from *AoA* which states
 
 # Formal statement
 
-For the following variables
+We fix the type variables
 ```anchor vars
 variable {α β : Type*} [DecidableEq α] [Lattice α] [OrderBot α] (alg : AdaptiveAlgorithm α β)
 ```
-we define as a convenient abbreviation
+globally and define as a convenient abbreviation
 ```anchor d_seq
 def d_seq n := alg.d (alg.𝒯 <| n + 1) (alg.U <| alg.𝒯 <| n + 1) (alg.U <| alg.𝒯 n)
 ```
 
-Corollary 4.8 mentions two different convergences. We split these
-into two Lean theorems. The "larger" theorem we want to ultimately show is
+Corollary 4.8 contains two different convergence statement. We split these
+into two Lean theorems. The "stronger" theorem we want to show is
 ```
 theorem convergence_of_apriori (hd_seq_lim : Tendsto (d_seq alg) atTop (𝓝 0)) :
-  Tendsto (fun n ↦ alg.d (alg.𝒯 <| n) alg.u (alg.U <| alg.𝒯 n)) atTop (𝓝 0) := by { ... }
+  Tendsto (fun n ↦ alg.d (alg.𝒯 <| n) alg.u (alg.U <| alg.𝒯 n)) atTop (𝓝 0) := by sorry
 ```
 which means that $`𝕕(\mathcal{T}_l, u, U(\mathcal{T}_l))` converges to zero if
 we have $`\lim_{l \to \infty} 𝕕[\mathcal{T}_l; U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)] = 0`.
+
 Note that this is not exactly the statement from *AoA*. We have left out the implication
 $$`
 \lim_{l \to \infty} 𝕕[\mathcal{T}_l; U_\infty, U(\mathcal{T}_l)] = 0 \Longrightarrow
 \lim_{l \to \infty} 𝕕[\mathcal{T}_l; U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)] = 0.
 `
--- TODO what about this implication??
 
 We will reach this theorem by first showing the intermediate result
 ```
@@ -65,24 +65,25 @@ lemma convergence_of_estimator (hd_seq_lim : Tendsto (d_seq alg) atTop (𝓝 0))
     Tendsto alg.gη2_seq atTop (𝓝 0) := by { ... }
 ```
 saying that $`η^2(\mathcal{T}_l, U(\mathcal{T}_l))` converges to zero given a-priori convergence.
-This way, both implications from Corollary 4.8 are proven in Lean.
+This way, both results from Corollary 4.8 are proven in Lean.
 
 # Proof
 
-Due to this proof being the first one to be formalized, its structure
+Because this proof was the first to be formalized, its structure
 is not optimal. It is split into a simple part where the
-global error $`η` and the distance $`𝕕` are replaced by non-negative
-sequences and a bridging theorem that uses the simpler result to show
-estimator convergence for an arbitrary $`AdaptiveAlgorithm`, the main difference
-being that the codomain of the involved functions (`η`, `d`) is `ℝ` instead of `NNReal`
+global error $`η^2` and the distance $`𝕕` are replaced by non-negative
+sequences and a "glueing" theorem that uses the simpler result to show
+estimator convergence for an arbitrary {anchorTerm vars}`AdaptiveAlgorithm`.
+The main difference of the stronger variant is
+that the codomain of the involved functions (`η`, `𝕕`) is `ℝ` instead of `NNReal`
 which was used in the simple part.
 
 ## Simple Estimator reduction
 
 In this section $`(η_n)` and $`(d_n)` will be non-negative sequences. This clashes
-with the notation for the global error and distance, however because the result we will
-prove is only useful when we plugin in the appropriate error estimator and distance sequences
-choosing different notation would not be benefitial.
+with the notation for the global error and distance, but because the result we will
+prove is only useful when we plug in in the appropriate error estimator and distance sequences,
+choosing different notation would be confusing.
 
 We begin by defining the simplified assumptions as a structure. In the same vein
 as with `AdaptiveAlgorithm`, this is a convenient way to work with the
@@ -95,10 +96,10 @@ structure SimpleEstimatorReduction (η d : ℕ → NNReal) where
   C_pos : C > 0
   bound : ∀ n, (η (n + 1))^2 ≤ q * (η n)^2 + C * (d n)^2
 ```
-This models the assumption of estimator reduction.
+This structure models the assumption of estimator reduction.
 
 All definitions and theorems of this section will be inside the
-{anchorTerm SimpleEstimatorReduction_preamble}`SimpleEstimatorReduction` namespace and include an instance of {anchorTerm SimpleEstimatorReduction}`SimpleEstimatorReduction`
+`SimpleEstimatorReduction` namespace and include an instance of {anchorTerm SimpleEstimatorReduction}`SimpleEstimatorReduction`
 as an assumption:
 ```anchor SimpleEstimatorReduction_preamble
 namespace SimpleEstimatorReduction
@@ -116,23 +117,28 @@ def weightedSum (n : ℕ) : NNReal :=
 def upperBound (n : ℕ) : NNReal :=
   h.q ^ (n + 1) * (η 0)^2 + h.C * h.weightedSum n
 ```
-The finite sum ranges up to $`n`, because the `Finset.range` function gives
+The finite sum ranges up to $`n`, because the
+{anchorTerm SimpleEstimatorReduction_defs}`Finset.range` function gives
 the natural numbers less than its argument.
-Note that they depend on the constants from the reduction property, which is
-possible because of the variable definition from before. Because
-of the namespace we can then access the e.g. `upperBound` for an instance `h : SimpleEstimatorReduction`
-as `h.upperBound`.
 
-The goal is to show from the assumption
-$`\lim_{n→∞} d_n = 0` that $`\lim_{n→∞} η_n^2 = 0`, or in Lean
+Note that these definitions depend on the constants from the reduction property, which is
+possible because of the variable definition from before.
+Since we made the definitions in the namespace `SimpleEstimatorReduction` we can then access e.g. the `upperBound` for an instance `h : SimpleEstimatorReduction`
+as `h.upperBound` (dot notation).
+
+The goal is to show that our assumptions and
+$`\lim_{n→∞} d_n = 0` imply that $`\lim_{n→∞} η_n^2 = 0`. In Lean this
+is written as
 ```
 theorem convergence_of_estimator_simple (hd_lim : Tendsto d atTop (𝓝 0)) : Tendsto (η^2) atTop (𝓝 0) := by sorry
 ```
+where of course we have the included assumption `(h : SimpleEstimatorReduction η d)` from the
+`variable` statement. In the next sections we will outline the proof of this theorem.
 
 ### Upper bound of Estimator
 
 We start by showing that
-$$`∀ n∈ℕ_0:\quad η_{n+1}^2 ≤ q^{n+1} η_0^2 + C ∑_{k=0}^{n} q^{n-k} d_k^2`
+$$`∀ n∈ℕ:\quad η_{n+1}^2 ≤ q^{n+1} η_0^2 + C ∑_{k=0}^{n} q^{n-k} d_k^2`
 by induction. The case $`n=0` is trivial, and the step is shown by
 $$`
 \begin{aligned}
@@ -188,7 +194,7 @@ $$`
 where the essential steps are that we recognise the finite geometric sum and that
 we use the bounds $`0 < q < 1`.
 
-The Lean proof uses the same steps, showing supporting results that can be used
+The Lean proof uses the same steps, showing supporting results that are used
 in rewrites first.
 ```anchor weighted_sum_bound
 lemma weighted_sum_bound (hd : BddAbove (Set.range d)) (n : ℕ):
@@ -257,20 +263,19 @@ proof that the terms involved are non-negative ({anchorTerm weighted_sum_bound}`
 tag := "boundedness_eta"
 %%%
 
--- TODO unify the "we need this because operators have defaults" stories
-The main $`d` argument for $`\lim_{n→∞} η_n = 0` uses the $`\lim\sup` of $`(η_n)`.
-Because the $`\lim\sup` of an unbounded sequence is defined to be zero
+The main $`d` argument for $`\lim_{n→∞} η_n = 0` uses the $`\limsup` of $`(η_n)`.
+Because the $`\limsup` of an unbounded sequence is defined to be zero
 in Lean, the next step will be to explicitly show that $`(η_n)`
-is bounded, giving us access to mathlib theorems about $`\lim\sup`.
+is bounded, giving us access to mathlib theorems about $`\limsup`.
 
 We show that $`(η_n)` is bounded above by $`\sqrt{K}` where
 $$`
-K \coloneqq \max { η_0^2 + C (\sup_{i ∈ ℕ_0} d_i)^2 \frac{1/q}{1/q - 1}, η_0^2 }.
+K \coloneqq \max \{ η_0^2 + C (\sup_{i ∈ ℕ_0} d_i)^2 \frac{\frac{1}{q}}{\frac{1}{q} - 1},\; η_0^2 \}
 ` (of course still assuming that $`(d_n)` is bounded).
 Using the maximum here is mathematically non-sensical because
 the first value is greater or equal than the second one. In Lean
 it avoids having to show non-negativity of the
-$`C (\sup_{i ∈ ℕ_0} d_i)^2 \frac{1/q}{1/q - 1}` term.
+$`C (\sup_{i ∈ ℕ_0} d_i)^2 \frac{\frac{1}{q}}{\frac{1}{q} - 1}` term.
 
 What is left to show after taking the square is that $`η_n^2 ≤ K`.
 We make a case distinction. If $`n=0`, because of the maximum in the
@@ -279,8 +284,8 @@ a natural number and:
 $$`
 \begin{aligned}
 η_n^2 &= η_{(n-1)+1}^2 \\
-&\stackrel{(Estimator Bound)}{≤} q^{n} η_0^2 + C ∑_{k=0}^{n-1} q^{n-1-k} d_k^2 \\
-&\stackrel{(Sum Bound)}{≤} q^{n} η_0^2 + C (\sup_{i ∈ ℕ_0} d_i)^2 \frac{q⁻¹}{q⁻¹ - 1}
+&\stackrel{(\mathrm{Estimator\ Bound})}{≤} q^{n} η_0^2 + C ∑_{k=0}^{n-1} q^{n-1-k} d_k^2 \\
+&\stackrel{(\mathrm{Sum\ Bound})}{≤} q^{n} η_0^2 + C (\sup_{i ∈ ℕ_0} d_i)^2 \frac{q⁻¹}{q⁻¹ - 1}
 &≤ η_0^2 + C (\sup_{i ∈ ℕ_0} d_i)^2 \frac{q⁻¹}{q⁻¹ - 1}
 \end{aligned}
 `
@@ -322,25 +327,26 @@ lemma estimator_bounded (hd : BddAbove (Set.range d)) : BddAbove (Set.range η) 
 
 ### Limsup of η is Zero
 
-Now we can show that $`\lim\sup_{n→∞} η_n = 0` assuming $`\lim_{n→∞} d_n = 0` and boundedness
+Now we can show that $`\limsup_{n→∞} η_n = 0` assuming $`\lim_{n→∞} d_n = 0` and boundedness
 of $`η`.
 We do this with the help of the utility lemma
 ```
 lemma smaller_q_eq_zero (a q: NNReal) (hq : q < 1) (ha : a ≤ q*a) : a = 0 := by sorry
 ```
+whose proof we will skip. It is available in the {ref "code"}[Lean code].
 
-So using the $`q` from the estimator reduction assumption,
+So, with the constant $`q` from the estimator reduction assumption,
 it suffices to show
 $$`
-\lim\sup_{n→∞} η_n ≤ q \lim\sup_{n→∞} η_n
-`.
+\limsup_{n→∞} η_n ≤ q \limsup_{n→∞} η_n.
+`
 
 This is clear from
 $$`
 \begin{aligned}
 \limsup_{n \to \infty} η_n^2 &= \limsup_{n \to \infty} η_{n+1}^2 \\
 &≤ \limsup_{n \to \infty} (q η_n^2 + C d_n^2) \\
-&≤ \limsup_{n \to \infty} q η_n^2 + \underbrace{\limsup_{n \to \infty} C d_n^2}_{=0 (\mathrm{convergence of }d_n)} \\
+&≤ \limsup_{n \to \infty} q η_n^2 + \underbrace{\limsup_{n \to \infty} C d_n^2}_{=0\ (\mathrm{convergence\ of\ }\ d_n)} \\
 &= \limsup_{n \to \infty} q η_n^2 \\
 &= q \limsup_{n \to \infty} η_n^2
 \end{aligned}
@@ -397,18 +403,18 @@ lemma estimator_limsup_zero (hd : Tendsto d atTop (𝓝 0)) (hη₁ : BddAbove (
 ```
 The boundedness proofs are necessary to apply mathlib theorems about `limsup` and use the result
 from the {ref "boundedness_eta"}[previous section]. Also note that `•` is the pointwise
-multiplication in Lean and is used in the proof to avoid writing the argument of
+multiplication in Lean and is used in the proof multiple times to avoid writing the argument of
 {anchorTerm estimator_limsup_zero}`limsup`
-as anonymous function.
+as an anonymous function.
 
 ### Convergence of η to Zero
 
 The final step is to conclude convergence of $`(η_n)` . We already know that
-$`\lim\sup_{n→∞} η_n = 0`. Naturally
+$`\limsup_{n→∞} η_n = 0`. Naturally
 $$`
-\lim\inf_{n→∞} η_n ≤ \lim\sup_{n→∞} η_n = 0.
+\liminf_{n→∞} η_n ≤ \limsup_{n→∞} η_n = 0.
 `
-So by standard analysis, if $`lim\inf` and $`lim\sup` agree, we have
+So by standard analysis, if $`\liminf` and $`\limsup` agree, we have
 convergence, which means $`\lim_{n→∞} η_n = 0`.
 
 The Lean proof is totally analogous, again supplying additional boundedness
@@ -439,23 +445,25 @@ Now we have reached the final conclusion of `SimpleEstimatorReduction`.
 In a "glueing" theorem we can now use the theory of `SimpleEstimatorReduction`
 to show the actual statement of Corollary 4.8. The first step is
 to port the result of `SimpleEstimatorReduction` to the `AdaptiveAlgorithm`
-world, i.e. that $`\lim_{l→∞} η^2(\mathcal{T}_l, U(\mathcal{T}_l)) = 0`.
+world, i.e. we show that $`\lim_{l→∞} η^2(\mathcal{T}_l, U(\mathcal{T}_l)) = 0`
+for the actual refinement indicator `η`.
 
-The only non-trivial step in this endeavour is that we formulated
+The only non-trivial step in this endeavour is that
 the estimator reduction in {ref "lemma47_formal_statement"}[Lemma 4.7]
-for any $`δ > 0` with $`ρ_{est}(δ) < 1`. So, for an estimator reduction property
+was formulated
+for any $`δ > 0` with $`ρ_{\mathrm{est}}(δ) < 1`. So, for an estimator reduction property
 to actually hold, we have to find a concrete such $`δ`. This is done
-via the utility lemma
+in the utility lemma
 ```
 lemma estimator_reduction_delta_exists : ∃ δ > 0, alg.ρ_est δ ∈ Set.Ioo 0 1 ∧ 0 < alg.C_est δ := by sorry
 ```
 which is has an uninspiring proof of the fact that
 $$`
-δ := \frac12 * ((1 - ρ_{\mathrm{red}}) θ (1 - (1 - ρ_{\mathrm{red}}) * θ)⁻¹)
+δ := \frac12 ((1 - ρ_{\mathrm{red}}) θ (1 - (1 - ρ_{\mathrm{red}}) * θ)⁻¹)
 `
-fulfils $`ρ_{est}(δ) < 1`.
+fulfils $`ρ_{\mathrm{est}}(δ) < 1`.
 
-Otherwise, mathematically speaking,
+Apart from that, mathematically speaking,
 it is very obvious that the simplified theorem applies to
 the sequences generated from the `AdaptiveAlgorithm`. However, in
 Lean this requires a few lines of code. Especially the conversion
@@ -521,13 +529,13 @@ The main point here is that we define the instance {anchorTerm convergence_of_es
 of type {anchorTerm convergence_of_estimator}`SimpleEstimatorReduction` and access its
 {anchorTerm convergence_of_estimator}`est_red.convergence_of_estimator_simple` proof
 to show the claim. The sequence we use for $`(η_n)` is {anchorTerm convergence_of_estimator}`nn_gη_seq`
-from  --TODO reference
+from the {ref "adaptive_alg_defs"}[`AdaptiveAlgorithm` definitions].
 
-Now the final blow is to show convergence of the distance to the unkown limit $`u`.
-This follows from reliability (A4) because it allows us to
+Now, the final step is to show convergence of the distance to the unkown limit $`u`.
+This follows from reliability, because it allows us to
 sandwich $`(𝕕(\mathcal{T}_l, u, U(\mathcal{T}_l)))_{l∈ℕ}`
-between the zero-convergent sequence $`(√{η^2(\mathcal{T}_l, U(\mathcal{T}_l))})_{l∈ℕ}` and the constant
-sequence zero:
+between the zero-convergent sequence $`(\sqrt{η^2(\mathcal{T}_l, U(\mathcal{T}_l))})_{l∈ℕ}` and the constant
+zero sequence:
 $$`
 0 ≤ 𝕕(\mathcal{T}_l, u, U(\mathcal{T}_l)) ≤ C_{\mathrm{rel}} √{η^2(\mathcal{T}_l, U(\mathcal{T}_l))}
 `
