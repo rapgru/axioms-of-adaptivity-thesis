@@ -18,11 +18,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout manual
         uses: actions/checkout@v4
+
+      - name: Checkout axioms-of-adaptivity
+        uses: actions/checkout@v4
+        with:
+          repository: rapgru/axioms-of-adaptivity
+          path: axioms_of_adaptivity
+
+      - name: Move axioms to correct location
+        run: mv axioms_of_adaptivity ../axioms_of_adaptivity
 
       - name: Install Elan and Lean
         uses: leanprover/lean-action@v1
+        with:
+          build: false
 
       - name: Build Docs
         run: lake exe docs
