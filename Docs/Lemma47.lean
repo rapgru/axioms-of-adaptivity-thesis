@@ -25,7 +25,9 @@ This chapter formalizes the proof of Lemma 4.7 from *AoA* which reads as
   relate via
   $$`
     \begin{aligned}
-    ρ_{\mathrm{est}} &= (1 + δ)(1 - (1 - ρ_{\mathrm{red}})θ) \quad \text{and} \\ C_{\mathrm{est}} &= C_{\mathrm{red}} + (1 + δ⁻¹)C_{\mathrm{stab}}²`
+    ρ_{\mathrm{est}} &= (1 + δ)(1 - (1 - ρ_{\mathrm{red}})θ) \quad \text{and} \\ C_{\mathrm{est}} &= C_{\mathrm{red}} + (1 + δ⁻¹)C_{\mathrm{stab}}²
+    \end{aligned}
+  `
   for all sufficiently small $`δ` such that $`ρ_{\mathrm{est}} < 1`.
 
 All the Lean code in this chapter is inside the `AdaptiveAlgorithm` namespace

@@ -122,7 +122,7 @@ $`\Omega = (-1,1)^2 \setminus [-1,0) \times (-1,0]`. The function
 $$`u(r,\varphi) \coloneqq r^{2/3} \sin(2\varphi/3),`
 where $`(r,\varphi)` are polar coordinates centered at the re-entrant corner,
 is a solution on the interior of $`\Omega`.
-![Solution](../static_files/afem/exact_solution.svg)
+![Solution](static_files/afem/exact_solution.svg)
 However, it has a singularity
 at the re-entrant corner $`(0,0)` and thus is not in $`H^2(\Omega)`. We can
 expect the error of the discrete solution
@@ -134,7 +134,7 @@ the trace of $`u` on the boundary as Dirichlet data, along
 with the residual error estimator and Dörfler marking with $`\theta = 0.25`,
 we obtain the following sequence of meshes and solutions:
 
-![AFEM Loop](../static_files/afem/collage_small.png)
+![AFEM Loop](static_files/afem/collage_small.png)
 
 On the left side we see the current mesh and on the right side the
 local refinement indicators represented as colored patches on the elements.

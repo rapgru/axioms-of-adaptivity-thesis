@@ -21,7 +21,7 @@ At the core of the adaptive finite element method are
 space discretizations of the problems domain. We call a space discretization
 *mesh*. Take as typical example of a mesh the following 2D-triangulation of an L-shaped domain.
 
-![Triangulation of an L-Shaped domain in 2D](../static_files/afem/mesh_0_small.png)
+![Triangulation of an L-Shaped domain in 2D](static_files/afem/mesh_0_small.png)
 
 In this section we will start with the formalization of meshes in Lean.
 After we have an idea
