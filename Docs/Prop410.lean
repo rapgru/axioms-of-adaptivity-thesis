@@ -53,20 +53,22 @@ the $`δ` parameter of the estimator reduction constants.
 Specifically we need $`δ > 0` such that
 $$`ρ_{\mathrm{est}}(δ) < 1`
 and
-$$`ε_{qo} < \frac{1-ρ_{\mathrm{est}}(δ)}{C_{\mathrm{rel}}^2 C_{\mathrm{est}}(δ)}.`
+$$`ε_{qo} < \frac{1-ρ_{\mathrm{est}}(δ)}{C_{\mathrm{rel}}^2 C_{\mathrm{est}}(δ)}`
+holds.
 
-Because
+The idea to obtaining such $`δ` is the following: Because
 $$`
-ε_{qo} < ε^*_{qo}(θ) \coloneqq \sup_{δ > 0} \frac{1-(1+δ)(1-(1-ρ_{\mathrm{red}})θ)}{C_{\mathrm{rel}}^2 (C_{\mathrm{red}} + (1+δ⁻¹)C_{\mathrm{stab}}^2)}
+ε_{qo} < ε^*_{qo}(θ) \coloneqq \sup_{δ > 0} \frac{1-(1+δ)(1-(1-ρ_{\mathrm{red}})θ)}{C_{\mathrm{rel}}^2 (C_{\mathrm{red}} + (1+δ⁻¹)C_{\mathrm{stab}}^2)},
 `
 we can find a $`δ > 0` such that
 $$`
 ε_{qo} < \frac{1-(1+δ)(1-(1-ρ_{\mathrm{red}})θ)}{C_{\mathrm{rel}}^2 (C_{\mathrm{red}} + (1+δ⁻¹)C_{\mathrm{stab}}^2)} ≤ ε^*_{qo}(θ).
 `
+
 It can be shown that this $`δ` in fact satisfies the properties we need.
 Due to the way Lean internally defines suprema over the positive
 reals it is very technical and we will only cite the statement here.
-The full proof can be found in the Lean source repository.
+The full proof can be found in the {ref "code"}[Lean source repository].
 
 ```
 lemma ε_qo_lt_est_consts :
@@ -75,7 +77,7 @@ lemma ε_qo_lt_est_consts :
 
 ## Cancel Lemma
 
-A small and technical lemma that is used multiple times in the proof is
+A small and technical lemma that we need is:
 {anchorTerm cancel}`cancel`:
 ```anchor cancel
 lemma cancel {δ a} (hδ : δ > 0) : a * (alg.C_rel^2 * alg.C_est δ / (alg.C_rel^2 * alg.C_est δ)) = a := by
@@ -85,33 +87,38 @@ lemma cancel {δ a} (hδ : δ > 0) : a * (alg.C_rel^2 * alg.C_est δ / (alg.C_re
   apply ne_of_gt
   exact alg.C_rel_mul_C_est_pos hδ
 ```
+This rather obvious statement is in its own lemma because it is reused multiple times in the proof.
 
 ## Main Proof
 
 We will present the proof in the interlaced format again as it is quite lenghty.
-In the typeset versions we will use the shifted sums that start from zero
+In the typeset calculations we will use shifted sums that start from zero,
 because the proof steps are rather technical and alignment with
-the Lean implementation is preferrable. Because the exact number of
+the Lean implementation is preferrable.
+
+Because the exact number of
 summands is not very relevant in the utility statements
-we will show, the Lean code uses an arbitrary $`N∈ℕ` as an upper sum index.
+we will show, the Lean code uses an arbitrary $`N∈ℕ` as an upper summation limit.
 To improve legibility we will write the typeset version of the sums up to
-the index $`n` which corresponds with the Lean sums via $`n = N - 1`
+the index $`n` which corresponds with the Lean sums via $`n = N - 1`,
 because Lean sums over a range of natural numbers have an exclusive upper limit.
 
 We define an analogon
 to `gη2_seq` with
 $$`η^2_n \coloneqq η^2(\mathcal{T}_{n}, U(\mathcal{T}_{n}))`
+to make the calculations more legible.
 
 We start the proof by taking a concrete $`δ > 0` such that
 $`ρ_{\mathrm{est}}(δ) < 1` (estimator reduction applies) and
-$`ε_{qo} < \frac{1-ρ_{\mathrm{est}}(δ)}{C_{\mathrm{rel}}^2 C_{\mathrm{est}}(δ)}` from the constants
-lemma.
+$`ε_{qo} < \frac{1-ρ_{\mathrm{est}}(δ)}{C_{\mathrm{rel}}^2 C_{\mathrm{est}}(δ)}` which
+exists according to the constants lemma.
+
 Then we define a new quantity
 $$`v \coloneqq ε_{qo} C_{\mathrm{rel}}^2 C_{\mathrm{est}}(δ)`
 which can easily be shown to satisfy $`0 ≤ v < 1 - ρ_{\mathrm{est}}(δ)`
 with our choice of $`δ`.
 
-In Lean we do exactly that to start the proof
+In Lean we do exactly these steps to start the proof
 ```anchor summability_1
 theorem summability : uniform_summability alg.nn_gη_seq := by
   rcases alg.ε_qo_lt_est_consts with ⟨δ, hδ, hε_qo, hρ_est⟩
@@ -135,13 +142,13 @@ theorem summability : uniform_summability alg.nn_gη_seq := by
 
 ```
 
-Now the first step is to show
+Now the first intermediate step is to show
 $$`
 \begin{aligned}
   ∑_{k=0}^n η^2_{k+l+1} &≤ ∑_{k=0}^n (ρ_{\mathrm{est}}(δ) + v) η^2_{k+l} + C_{\mathrm{est}}(δ) C_{\mathrm{qo}} η^2_l
 \end{aligned}
 `
-for all $`n,l ∈ ℕ`
+for all $`n,l ∈ ℕ`.
 
 This can be formulated in a calculation that is ideal for finding a
 Lean proof:
@@ -257,7 +264,7 @@ In the Lean proof we continue by showing the estimate using this exact chain of 
 
 Using this first result we can continue to show
 $$`
-(1 - (ρ_{\mathrm{est}}(δ) + ν)) ∑_{k=0}^n η^2_{k+l+1} ≤ (C_{\mathrm{est}}(δ) C_{\mathrm{qo}} + ρ_{\mathrm{est}}(δ) + ν) η^2_l
+(1 - (ρ_{\mathrm{est}}(δ) + ν)) \left(∑_{k=0}^n η^2_{k+l+1}\right) ≤ (C_{\mathrm{est}}(δ) C_{\mathrm{qo}} + ρ_{\mathrm{est}}(δ) + ν)\, η^2_l
 `
 for any $`n,l∈ℕ`.
 
@@ -265,15 +272,15 @@ This follows from the calculation
 $$`
 \begin{aligned}
   &(1 - (ρ_{\mathrm{est}}(δ) + ν)) ∑_{k=0}^n η^2_{k+l+1} \\
-  &= (1 - (ρ_{\mathrm{est}}(δ) + ν)) (∑_{k=0}^n η^2_{k+l+1} + η^2_l - η^2_l) \\
-  &= (1 - (ρ_{\mathrm{est}}(δ) + ν)) ∑_{k=0}^{n+1} η^2_{k+l} - (1 - (ρ_{\mathrm{est}}(δ) + ν)) η^2_l \\
-  &= (1 - (ρ_{\mathrm{est}}(δ) + ν)) (∑_{k=0}^n η^2_{k+l} + η^2_{n+l+1}) - (1 - (ρ_{\mathrm{est}}(δ) + ν)) η^2_l \\
-  &≤ (1 - (ρ_{\mathrm{est}}(δ) + ν)) ∑_{k=0}^n η^2_{k+l} + η^2_{n+l+1} - (1 - (ρ_{\mathrm{est}}(δ) + ν)) η^2_l \\
-  &= ∑_{k=0}^n η^2_{k+l} - (ρ_{\mathrm{est}}(δ) + ν) ∑_{k=0}^n η^2_{k+l} + η^2_{n+l+1} - η^2_l + (ρ_{\mathrm{est}}(δ) + ν) η^2_l \\
-  &= ∑_{k=0}^n η^2_{k+l+1} - (ρ_{\mathrm{est}}(δ) + ν) ∑_{k=0}^n η^2_{k+l} + (ρ_{\mathrm{est}}(δ) + ν) η^2_l \\
-  &≤ ∑_{k=0}^n (ρ_{\mathrm{est}}(δ) + ν) η^2_{k+l} + C_{\mathrm{est}}(δ) C_{\mathrm{qo}} η^2_l - (ρ_{\mathrm{est}}(δ) + ν) ∑_{k=0}^n η^2_{k+l} + (ρ_{\mathrm{est}}(δ) + ν) η^2_l \\
-  &= C_{\mathrm{est}}(δ) C_{\mathrm{qo}} η^2_l + (ρ_{\mathrm{est}}(δ) + ν) η^2_l \\
-  &= (C_{\mathrm{est}}(δ) C_{\mathrm{qo}} + ρ_{\mathrm{est}}(δ) + ν) η^2_l
+  &= (1 - (ρ_{\mathrm{est}}(δ) + ν)) \left(∑_{k=0}^n η^2_{k+l+1} + η^2_l - η^2_l\right) \\
+  &= (1 - (ρ_{\mathrm{est}}(δ) + ν)) \left(∑_{k=0}^{n+1} η^2_{k+l}\right) - (1 - (ρ_{\mathrm{est}}(δ) + ν))\, η^2_l \\
+  &= (1 - (ρ_{\mathrm{est}}(δ) + ν)) \left(\left(∑_{k=0}^n η^2_{k+l}\right) + η^2_{n+l+1}\right) - (1 - (ρ_{\mathrm{est}}(δ) + ν))\, η^2_l \\
+  &≤ (1 - (ρ_{\mathrm{est}}(δ) + ν)) \left(∑_{k=0}^n η^2_{k+l}\right) + η^2_{n+l+1} - (1 - (ρ_{\mathrm{est}}(δ) + ν)) η^2_l \\
+  &= ∑_{k=0}^n η^2_{k+l} - (ρ_{\mathrm{est}}(δ) + ν) \left(∑_{k=0}^n η^2_{k+l}\right) + η^2_{n+l+1} - η^2_l + (ρ_{\mathrm{est}}(δ) + ν)\, η^2_l \\
+  &= ∑_{k=0}^n η^2_{k+l+1} - (ρ_{\mathrm{est}}(δ) + ν) \left(∑_{k=0}^n η^2_{k+l}\right) + (ρ_{\mathrm{est}}(δ) + ν)\, η^2_l \\
+  &≤ ∑_{k=0}^n (ρ_{\mathrm{est}}(δ) + ν) η^2_{k+l} + C_{\mathrm{est}}(δ) C_{\mathrm{qo}} η^2_l - (ρ_{\mathrm{est}}(δ) + ν) \left(∑_{k=0}^n η^2_{k+l}\right) + (ρ_{\mathrm{est}}(δ) + ν)\, η^2_l \\
+  &= C_{\mathrm{est}}(δ) C_{\mathrm{qo}} η^2_l + (ρ_{\mathrm{est}}(δ) + ν)\, η^2_l \\
+  &= (C_{\mathrm{est}}(δ) C_{\mathrm{qo}} + ρ_{\mathrm{est}}(δ) + ν)\, η^2_l
 \end{aligned}
 `
 where the first inequality uses the fact that $`(1-(ρ_{\mathrm{est}}(δ)+v)) < 1` and

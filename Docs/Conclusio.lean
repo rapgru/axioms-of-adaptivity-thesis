@@ -24,8 +24,22 @@ is already very apt to prove numerical theorems in. All the basic
 infrastructure is there, starting with a formalization
 in this field is effortless.
 
-On the other hand, while definitions are very quick to translate into Lean,
-proving theorems about the objects one has defined is very far from effortless.
+What did this formalization achieve?
+- The lemmata we have formalized have been acknowledged as correct by
+  Lean. This means that, assuming there Lean does not have compiler errors,
+  they are implied by an axiom system that can be used as a
+  foundation of mathematics.
+- A very small index mistake was found in Lemma 4.7 of *AoA*
+- The missing assumption $`a_n ≠ 0` was found in Lemma 4.9
+- The constants that depend on the choice of $`δ` are now
+  handled very precisely. Theorem statements including these
+  constants are now very explicit about the role $`δ` plays in them,
+  while in *AoA* these details are hidden in phrases like
+  "for sufficiently small".
+
+
+Altough, while definitions are very quick to translate into Lean,
+proving theorems about the objects one has defined is far from effortless.
 - A mathematician has the ability to quickly fill in clear, obvious
   facts. The computer cannot.
   An example that appeared very often in this documentation is that
@@ -42,27 +56,13 @@ proving theorems about the objects one has defined is very far from effortless.
   a very robust method, it requires fitting the whole proof into a
   chain of inequalities before one can start coding.
 
-What did this formalization achieve?
-- The lemmata we have formalized have been acknowledged as correct by
-  Lean. This means that, assuming there Lean does not have compiler errors,
-  they are implied by an axiom system that can be used as a
-  foundation of mathematics.
-- A very small index mistake was found in Lemma 4.7 of *AoA*
-- The missing assumption $`a_n ≠ 0` was found in Lemma 4.9
-- The constants that depend on the choice of $`δ` are now
-  handled very precisely. Theorem statements including these
-  constants are now very explicit about the role $`δ` plays in them,
-  while in *AoA* these details are hidden in phrases like
-  "for sufficiently small".
 
 The theorems we formalized span about 2.5 pages in the _Axioms of adaptivity_
-paper. In Lean it amounts to about 1700 lines of complex code that
-was quite an effort to implement. This is at least a tenfold
-increase in lenght when we print out the source code,
-which should just underline that a formalization
+paper. In Lean it amounts to about 1700 lines of complex code.
+This is at least a tenfold increase in lenght would we print out the source code.
+This comparison should just underline that a formalization
 is serious work. The question we can only leave open is,
-if this effort
-is worth it to gain an ultimate answer about the correctness of the proof
+if this effort is worth it to gain an ultimate answer about the correctness of the proof
 in the context of computer numerics.
 
 An interesting aspect of formal verification in the context of computational science
