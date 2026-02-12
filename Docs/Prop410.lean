@@ -115,7 +115,6 @@ In Lean we do exactly that to start the proof
 ```anchor summability_1
 theorem summability : uniform_summability alg.nn_gη_seq := by
   rcases alg.ε_qo_lt_est_consts with ⟨δ, hδ, hε_qo, hρ_est⟩
-  -- TODO clean up the lt_est_consts lemma !!
 
   let v := alg.ε_qo * alg.C_rel^2 * alg.C_est δ
   have hv₁ : v < 1 - alg.ρ_est δ := calc
