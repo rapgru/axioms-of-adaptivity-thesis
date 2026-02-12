@@ -60,7 +60,7 @@ will show the equivalence in the form:
   2. _Inverse summability_: For all $`s > 0`, there exists a constant $`C_4 > 0` such that
       $$`∑_{k=0}^{l-1} a_k^{-1/s} ≤ C_4 a_l^{-1/s} \quad \text{for all } l ∈ ℕ.`
   3. _Uniform R-linear convergence on any level_: There exist constants $`0 < ρ_1 < 1` and $`C_5 > 0` such that
-      $$`a{l+k}² ≤ C_5 ρ_1^k a_l² \quad \text{for all } k, l ∈ ℕ.`
+      $$`a_{l+k}² ≤ C_5 ρ_1^k a_l^2 \quad \text{for all } k, l ∈ ℕ.`
 
 To translate this into Lean, we first define the statements 1-3. as `Prop`s
 ```anchor summability_defs
@@ -134,6 +134,9 @@ This approach follows the proof in *AoA*.
 We will now prove the implication one after the other.
 
 ## Uniform Summability implies Uniform R-linear
+%%%
+tag := "1_to_3"
+%%%
 
 We begin by showing an upper bound for the series $`\sum_{k=l+n}^{\infty} a_{k}^{2}`
 by induction. In precise terms we will show that the estimate
@@ -216,6 +219,9 @@ a_{l+k}^2 &≤ ∑_{j=l+k}^∞ a_j^2 \\
 &= (C+1) \left(\frac{1}{1+C⁻¹}\right)^k a_l^2
 \end{aligned}
 `
+The first inequality estimates a single summand by a series,
+the second one is our recursive bound,
+and the last one follows from the uniform summability assumption.
 
 The Lean version follows exactly this idea, but the additional precision
 we need to have is very visible:
@@ -266,6 +272,9 @@ Estimating one summand with the whole series and splitting of one summand
 is where we needed a summability proof.
 
 ## Uniform R-linear implies Uniform Summability
+%%%
+tag := "3_to_1"
+%%%
 
 This direction essentially uses the convergence of the geometric series.
 From that we can derive a uniform upper bound on partial sums of the series
@@ -373,3 +382,331 @@ that $`(a_n)_{n∈ℕ}` must be summable. This transfers to Lean as
       _ ≤ C * q * (1 - q)⁻¹ * (a ^ 2) 0 + (a ^ 2) 0 := by rel [this 0 n]
 ```
 which concludes the proof.
+
+## Uniform R-Linear implies Inverse Summability
+
+This direction is similar to {ref "3_to_1"}[Uniform R-linear implies Uniform Summability],
+using the convergence of the geometric sum is essential again. We
+present the proof interlaced just as before.
+
+We start by establishing the constants from uniform R-linear convergence as $`q` and $`C`
+and supply the appropriate value for the existential quantifiers on $`C_4`
+from inverse summability
+
+```anchor inverse_of_uniform_r_linear_1
+lemma inverse_of_uniform_r_linear (ha : ∀ n, a n ≠ 0) (h : uniform_r_linear_convergence a):
+    inverse_summability a := by
+  rcases h with ⟨q,hq,C,hC,h⟩
+  intros s hs
+  use C^(1/(2*s))*(1-q^(1/(2*s)))⁻¹
+  constructor
+  · apply Left.mul_pos (NNReal.rpow_pos hC) ?_
+    simp
+    apply NNReal.rpow_lt_one hq.2
+    simp [hs]
+```
+
+As an intermediate step we will show that for all $`l,k ∈ ℕ`:
+$$`
+a_l^{-\frac{1}{s}} ≤ C^{\frac{1}{2s}} q^{\frac{k}{2s}} a_{l+k}^{-\frac{1}{s}}
+`
+
+This would be very easily proven by applying equivalent transformations on the
+bound from R-linear convergence
+$$`
+  \begin{aligned}
+    &a_{l+k}^2 &\leq C q^k a_l^2 &| (·)^{\frac{1}{2s}} \\
+    &\Rightarrow a_{l+k}^{\frac{1}{s}} &\leq C^{\frac{1}{2s}} q^{\frac{k}{2s}} a_l^{\frac{1}{s}} &| \cdot a_{l+k}^{-\frac{1}{s}} \\
+    &\Rightarrow a_{l+k}^{\frac{1}{s}} a_{l+k}^{-\frac{1}{s}} &\leq C^{\frac{1}{2s}} q^{\frac{k}{2s}} a_l^{\frac{1}{s}} a_{l+k}^{-\frac{1}{s}} &| \cdot a_l^{-\frac{1}{s}} \\
+    &\Rightarrow a_l^{-\frac{1}{s}} &\leq C^{\frac{1}{2s}} q^{\frac{k}{2s}} a_{l+k}^{-\frac{1}{s}}
+  \end{aligned}
+`
+but in Lean this was not possible in this form because the algebraic simplification
+steps involved here were too complex. Instead, the Lean proof
+only carries out the multiplication steps on the estimate from R-linear convergence
+i.e.
+$$`
+\begin{aligned}
+a_{l+k}^2 &\leq C q^k a_l^2 && | \cdot a_{l+k}^{-\frac{1}{s}} \\
+    \Rightarrow a_{l+k}^{-\frac{1}{s}} a_{l+k} a_{l+k}^{-\frac{1}{s}} &\leq a_{l+k}^{-\frac{1}{s}} C q^k a_l  && | \cdot a_l^{-\frac{1}{s}} \\
+    \Rightarrow a_l^{-\frac{1}{s}} a_{l+k}^{-\frac{1}{s}} a_{l+k} a_{l+k}^{-\frac{1}{s}} &\leq a_l^{-\frac{1}{s}} a_{l+k}^{-\frac{1}{s}} C q^k a_l
+\end{aligned}
+`
+and follows this up with a calc block that is granular enough to find proofs for
+the single steps:
+$$`
+  \begin{aligned}
+    a_l^{-\frac{1}{s}} &= a_l^{-\frac{1}{s}} \cdot (a_{l+k}^{-\frac{1}{s}} \cdot a_{l+k}^{\frac{1}{s}}) \\
+    &= a_l^{-\frac{1}{s}} \cdot (a_{l+k}^{-\frac{1}{s}} \cdot (a_{l+k}^2)^{\frac{1}{2s}}) \\
+    &\leq a_l^{-\frac{1}{s}} \cdot a_{l+k}^{-\frac{1}{s}} \cdot (C q^k a_l^2)^{\frac{1}{2s}} \\
+    &= a_l^{-\frac{1}{s}} \cdot a_{l+k}^{-\frac{1}{s}} \cdot C^{\frac{1}{2s}} \cdot q^{\frac{k}{2s}} \cdot a_l^{\frac{1}{s}} \\
+    &= (a_l^{-\frac{1}{s}} \cdot a_l^{\frac{1}{s}}) \cdot a_{l+k}^{-\frac{1}{s}} \cdot C^{\frac{1}{2s}} \cdot q^{\frac{k}{2s}} \\
+    &= C^{\frac{1}{2s}} \cdot q^{\frac{k}{2s}} \cdot a_{l+k}^{-\frac{1}{s}}
+  \end{aligned}
+`
+
+The Lean proof is
+```anchor inverse_of_uniform_r_linear_2
+  have h_inv : ∀ l, ∀ k:ℕ, (a l)^(-1/s) ≤ C^(1/(2*s)) * q^(k/(2*s)) * a (l+k) ^ (-1/s) := by
+    intros l k
+    specialize h k l
+    have hss : 1/(2*s) > 0 := by simp [hs]
+
+    rw [← NNReal.rpow_le_rpow_iff hss] at h
+    simp only [Pi.pow_apply] at h
+    replace h := mul_le_mul_left' h (a (l + k) ^ (-1/s))
+    replace h := mul_le_mul_left' h (a l ^ (-1/s))
+
+    calc a l ^ (-1 / s)
+      _ = a l ^ (-1 / s) * (a (l + k) ^ (-(1 / s)) * (a (l + k)) ^ (1 / s)) := by
+        simp [← NNReal.rpow_add (ha (l+k))]
+      _ = a l ^ (-1 / s) * (a (l + k) ^ (-1 / s) * (a (l + k) ^ 2) ^ (1 / (2 * s))) := by
+        congr 2
+        · rw [neg_div' s 1]
+        · rw [← NNReal.rpow_natCast, ← NNReal.rpow_mul (a (l + k))]
+          congr
+          field_simp
+      _ ≤ a l ^ (-1 / s) * (a (l + k) ^ (-1 / s) * (C * q ^ k * a l ^ 2) ^ (1 / (2 * s))) := h
+      _ = a l ^ (-1 / s) * a (l + k) ^ (-1 / s) * C ^ (1 / (2 * s)) * q ^ (↑k * (1 / (2 * s))) * a l ^ (1 / s) := by
+        simp only [NNReal.mul_rpow, ← mul_assoc]
+        rw [← NNReal.rpow_natCast, ← NNReal.rpow_natCast]
+        simp only [← NNReal.rpow_mul]
+        congr 2
+        field_simp
+      _ = (a l ^ (-1 / s) * a l ^ (1 / s)) * a (l + k) ^ (-1 / s) * C ^ (1 / (2 * s)) * q ^ (↑k * (1 / (2 * s))) := by ring
+      _ = C ^ (1 / (2 * s)) * q ^ (↑k / (2 * s)) * a (l + k) ^ (-1/ s) := by
+        simp only [← NNReal.rpow_add (ha l)]
+        field_simp
+        ring
+```
+We use the assumption that $`a_n ≠ 0` for the application of the {anchorTerm inverse_of_uniform_r_linear_2}`NNReal.rpow_add` theorem which contains the calculation rule
+$$`
+x^{y + z} = x^y x^z,
+`
+which does not have to be true if $`x=0` as by definition
+$`0^{-1+1} = 0^0 = 1` but also $`0^{-1} · 0^1 = 0 · 0 = 0`.
+
+Because we want to show the estimate from inverse summability, we
+fix $`l∈ℕ` and continue with the key observation that
+$$`
+∀ p ∈ (0,1):\quad ∑_{k=0}^{l-1} p^{l-k} < (1-p)⁻¹
+`
+which is clear from the calculation
+$$`
+  \begin{aligned}
+    \sum_{k=0}^{l-1} p^{l-k} &= \sum_{k=0}^{l-1} p^{k+1} \\
+    &= p \cdot \left( \sum_{k=0}^{l-1} p^k \right) \\
+    &\leq \sum_{k=0}^{l-1} p^k && | \ p \in (0,1) \\
+    &< (1-p)^{-1} && | \ \text{geom. sum}
+  \end{aligned}
+`
+where we use $`p ∈ (0,1)` in the first inequality and the convergence
+of the geometric sum in the second.
+
+In Lean, we show this using `calc`.
+```anchor inverse_of_uniform_r_linear_3
+  intros l
+  have h_qbound : ∀ p ∈ (Set.Ioo (0:NNReal) 1), ∑ k ∈ range l, p^(l - k) < (1-p)⁻¹ := by
+    intros p hp
+    calc ∑ k ∈ range l, p^(l - k)
+      _ = ∑ k ∈ range l, p^(k + 1) := by
+        let e : ℕ → ℕ := fun x ↦ l - x - 1
+        have he_range : ∀ x ∈ range l, e x ∈ range l := by
+          intros x hx
+          apply mem_range.mpr
+          unfold e
+          calc l
+            _ ≥ l - x := by exact Nat.sub_le l x
+            _ > l - x - 1 := by
+              refine Nat.sub_succ_lt_self (l - x) 0 ?_
+              apply Nat.zero_lt_sub_of_lt
+              exact List.mem_range.mp hx
+        have he_involution : ∀ x ∈ range l, e (e x) = x := by
+          intros x hx
+          unfold e
+          rw [← Int.natCast_inj]
+          rw [Int.natCast_sub, Int.natCast_sub, Int.natCast_sub, Int.natCast_sub]
+          group
+          · exact mem_range_le hx
+          · apply Nat.succ_le_of_lt
+            apply Nat.zero_lt_sub_of_lt
+            exact mem_range.mp hx
+          · apply mem_range_le (he_range x hx)
+          · apply Nat.succ_le_of_lt
+            apply Nat.zero_lt_sub_of_lt
+            exact mem_range.mp (he_range x hx)
+
+        apply Finset.sum_nbij' e e he_range he_range he_involution he_involution
+        · intros x hx
+          unfold e
+          congr
+          apply Nat.eq_add_of_sub_eq ?_ rfl
+          apply Nat.le_sub_of_add_le
+          apply Nat.one_add_le_iff.mpr
+          exact List.mem_range.mp hx
+      _ = ∑ k ∈ range l, p * p^k := by
+        congr with k
+        apply NNReal.eq_iff.mp
+        exact pow_succ' p k
+      _ = p * ∑ k ∈ range l, p^k := by simp only [mul_sum]
+      _ ≤ ∑ k ∈ range l, p^k := mul_le_of_le_one_left' (le_of_lt hp.2)
+      _ < (1 - p)⁻¹ := geom_sum_lt (ne_of_gt hp.1) hp.2 l
+```
+Showing that we can reorder the summands in the sum is not as straightforward
+as it seems on paper. We use {anchorTerm inverse_of_uniform_r_linear_3}`Finset.sum_nbij'`
+from mathlib. As the reordering bijection we use
+$$`
+e : ℕ → ℕ : n ↦ n - l - 1
+`
+which is self-inverse. {anchorTerm inverse_of_uniform_r_linear_3}`Finset.sum_nbij'`
+requires us to show bijectivity by providing the left and right inverse
+along with a proof that the compositions of our bijection and the inverses
+are the identity. So to apply the theorem, we use {anchorTerm inverse_of_uniform_r_linear_3}`e`
+as both right and left inverse and provide the proof that $`e^2=\mathrm{id}`
+twice.
+
+Now we can show inverse summability by combinbing our intermediate results.
+We observe that
+$$`
+  \begin{aligned}
+    \sum_{k=0}^{l-1} a_k^{-\frac{1}{s}}
+    &\leq \sum_{k=0}^{l-1} C^{\frac{1}{2s}} q^{\frac{l-k}{2s}} a_{k+(l-k)}^{-\frac{1}{s}} \\
+    &= \sum_{k=0}^{l-1} C^{\frac{1}{2s}} a_l^{-\frac{1}{s}} q^{\frac{l-k}{2s}} \\
+    &= C^{\frac{1}{2s}} a_l^{-\frac{1}{s}} \sum_{k=0}^{l-1} (q^{\frac{1}{2s}})^{l-k} \\
+    &< C^{\frac{1}{2s}} a_l^{-\frac{1}{s}} (1-q^{\frac{1}{2s}})^{-1} \\
+    &= C^{\frac{1}{2s}} (1-q^{\frac{1}{2s}})^{-1} a_l^{-\frac{1}{s}},
+  \end{aligned}
+`
+where the first inequality is our first intermediate result and
+the second one from our second observation applied to $`p = q^{\frac{1}{2s}}`.
+
+The Lean proof reads as
+```anchor inverse_of_uniform_r_linear_4
+  calc ∑ k ∈ range l, a k ^ (-1 / s)
+    _ ≤ ∑ k ∈ range l, C ^ (1 / (2 * s)) * q ^ (↑(l - k) / (2 * s)) * a (k + (l - k)) ^ (-1/s) := by
+      gcongr with k hk
+      apply h_inv
+    _ = ∑ k ∈ range l, C ^ (1 / (2 * s)) * q ^ (↑(l - k) / (2 * s)) * a l ^ (-1/s) := by
+      apply Finset.sum_congr rfl
+      intros k hk
+      congr
+      apply Nat.add_sub_of_le
+      exact mem_range_le hk
+    _ = ∑ k ∈ range l, (C ^ (1 / (2 * s)) * a l ^ (-1/s)) * q ^ (↑(l - k) / (2 * s)) := by
+      congr
+      funext
+      ring
+    _ = C ^ (1 / (2 * s)) * a l ^ (-1/s) * ∑ k ∈ range l, q ^ (↑(l - k) / (2 * s)) := by simp [← mul_sum, mul_assoc]
+    _ = C ^ (1 / (2 * s)) * a l ^ (-1/s) * ∑ k ∈ range l, (q ^ (1 / (2 * s)))^(l - k) := by
+      congr
+      funext
+      rw [← NNReal.rpow_natCast, ← NNReal.rpow_mul q]
+      field_simp
+    _ ≤ C ^ (1 / (2 * s)) * a l ^ (-1/s) * (1-q^(1/(2*s)))⁻¹ := by
+      have : q^(1/(2*s)) ∈ Set.Ioo (0:NNReal) 1 := by
+        constructor
+        · apply NNReal.rpow_pos
+          exact hq.1
+        · apply NNReal.rpow_lt_one
+          exact hq.2
+          apply one_div_pos.mpr
+          linarith [hs]
+      rel [h_qbound (q^(1/(2*s))) this]
+    _ = C ^ (1 / (2 * s)) * (1 - q ^ (1 / (2 * s)))⁻¹ * a l ^ (-1 / s) := by ring
+```
+which concludes the proof.
+
+## Inverse Summability implies Uniform R-Linear
+
+The last implication is very similar to
+{ref "1_to_3"}[Uniform Summability implies Uniform R-linear],
+first we show that for all $`n,l ∈ ℕ`
+$$`
+\sum_{k=0}^{l-1} a_k \leq\left(\frac{1}{1+C^{-1}}\right)^{n} \left( \sum_{k=0}^{l+n-1} a_k \right)
+`
+by induction on $`n`. We will skip the proof, it is available in the {ref "code"}[Lean source code].
+
+When $`C` is the constant from inverse summability, the
+appropriate constant for R-linear convergence are
+$$`
+C_5 \coloneqq (1+C)
+`
+$$`
+q \coloneqq (1+C⁻¹)⁻¹
+`
+In Lean we setup the proof with
+```anchor uniform_r_linear_of_inverse_1
+lemma uniform_r_linear_of_inverse (ha : ∀ n, a n ≠ 0) (h : inverse_summability a) : uniform_r_linear_convergence a := by
+  rcases (h (1/2) (by simp only [one_div, gt_iff_lt, inv_pos, Nat.ofNat_pos])) with ⟨C, hC, hBound⟩
+  simp at hBound
+  use (1+C⁻¹)⁻¹
+  constructor
+  · simp
+    refine inv_lt_one_of_one_lt₀ ?_
+    refine lt_add_of_pos_right 1 ?_
+    simp [hC]
+
+  use (1+C)
+  constructor
+  · simp [hC]
+
+  intros k l
+```
+
+Then we show
+$$`
+\begin{aligned}
+a_l^{-2} &\leq \sum_{j=0}^l a_j^{-2} \\
+&\leq \left(\frac{1}{1+C^{-1}}\right)^k \left(\sum_{j=0}^{l+k} a_j^{-2}\right) \\
+&= \left(\frac{1}{1+C^{-1}}\right)^k \left(\sum_{j=0}^{l+k-1} a_j^{-2} + a_{l+k}^{-2}\right) \\
+&\leq \left(\frac{1}{1+C^{-1}}\right)^k (C a_{l+k}^{-2} + a_{l+k}^{-2}) \\
+&= \left(\frac{1}{1+C^{-1}}\right)^k (1+C) a_{l+k}^{-2}
+\end{aligned}
+`
+where we use the recursive bound in the second inequality. In Lean we write
+```anchor uniform_r_linear_of_inverse_2
+  have h := by
+    let g : ℕ → NNReal := fun k ↦ (a k)^(-2:ℝ)
+    calc (a l)^(-2:ℝ)
+      _ = g l  := by rfl
+      _ ≤ ∑ j ∈ range (l+1), g j := by apply Finset.single_le_sum <;> simp
+      _ ≤ 1/(1 + C⁻¹)^k *  ∑ j ∈ range ((l + 1) + k), g j := by apply inverse_recursive_bound hC hBound
+      _ = 1/(1 + C⁻¹)^k * (∑ j ∈ range ((l + k) + 1), g j) := by {congr 3; ring}
+      _ = 1/(1 + C⁻¹)^k * (∑ j ∈ range (l + k), g j + g (l+k)) := by simp [sum_range_succ]
+      _ ≤ 1/(1 + C⁻¹)^k * (C * g (l+k) + g (l+k)) := by rel [hBound (l+k)]
+      _ = 1/(1 + C⁻¹)^k * (1+C) * g (l+k) := by ring
+      _ = 1/(1 + C⁻¹)^k * (1+C) * (a (l+k))^(-2:ℝ) := by rfl
+```
+using an auxilliary function {anchorTerm uniform_r_linear_of_inverse_2}`g` again to
+make `apply` find the right function to apply {anchorTerm uniform_r_linear_of_inverse_2}`Finset.single_le_sum` to.
+
+Then we can finish the proof with
+$$`
+\begin{aligned}
+  a_{l+k}^2 &= a_{l+k}^2 a_l^{-2} a_l^2 \\
+  &= a_l^2 a_l^{-2} a_{l+k}^2 \\
+  &\leq a_l^2 \left( \left(\frac{1}{1+C^{-1}}\right)^k (1+C) a_{l+k}^{-2} \right) a_{l+k}^2 \\
+  &= a_l^2 \left(\frac{1}{1+C^{-1}}\right)^k (1+C) \left( a_{l+k}^{-2} a_{l+k}^2 \right) \\
+  &= a_l^2 \left(\frac{1}{1+C^{-1}}\right)^k (1+C) \\
+  &= (1+C) \left(\frac{1}{1+C^{-1}}\right)^k a_l^2
+\end{aligned}
+`
+using the previous estimate, which translates directly to Lean:
+```anchor uniform_r_linear_of_inverse_3
+  calc (a ^ 2) (l + k)
+    _ = a (l+k) ^ 2 * ((a l) ^ (-2:ℝ) * (a l) ^ (2:ℝ)) := by
+      rw [← NNReal.rpow_add (ha l)]
+      simp
+    _ = a (l+k) ^ 2 * ((a l) ^ (-2:ℝ) * (a l) ^ 2) := by simp
+    _ = a l ^ 2 * a l ^ (-2:ℝ) * a (l + k) ^ 2 := by ring
+    _ ≤ a l ^ 2 * (1 / (1 + C⁻¹) ^ k * (1 + C) * a (l + k) ^ (-2:ℝ)) * a (l + k) ^ 2 := by rel[h]
+    _ = a l ^ 2 * (1 / (1 + C⁻¹) ^ k * (1 + C)) * (a (l + k) ^ (-2:ℝ) * a (l + k) ^ 2) := by ring
+    _ = a l ^ 2 * (1 / (1 + C⁻¹) ^ k * (1 + C)) * (a (l + k) ^ (-2:ℝ) * a (l + k) ^ (2:ℝ)) := by simp
+    _ = a l ^ 2 * (1 / (1 + C⁻¹) ^ k * (1 + C)) := by
+      rw [← NNReal.rpow_add (ha (l+k))]
+      simp
+    _ = (1 / (1 + C⁻¹) ^ k * (1 + C)) * (a l) ^ 2 := by ring
+    _ = ((1 + C⁻¹)⁻¹ ^ k * (1 + C)) * (a ^ 2) l := by simp
+    _ = (1 + C) * (1 + C⁻¹)⁻¹ ^ k * (a ^ 2) l := by ring
+```
+Now, the equivalence of the summability statements is established.
