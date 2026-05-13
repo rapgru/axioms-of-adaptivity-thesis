@@ -20,7 +20,7 @@ htmlSplit := .never
 We have seen four lemmas of *AoA* formalized in Lean.
 When seen as a case study, we can definitely say
 that Lean and especially the ecosystem including {ref "mathlib"}[mathlib4]
-is already very apt to prove numerical theorems in. All the basic
+is already very apt to prove numerical theorems in it. All the basic
 infrastructure is there, starting with a formalization
 in this field is effortless.
 
@@ -44,7 +44,7 @@ proving theorems about the objects one has defined is far from effortless.
   facts. The computer cannot.
   An example that appeared very often in this documentation is that
   Lean required explicit proofs of non-negativity. A trained eye
-  just "see" that a term is non-negative, but in Lean this could turn into
+  just "sees" that a term is non-negative, but in Lean this could turn into
   an auxiliary proof that costs half an hour.
   Of course this is exactly where automated tools, which are
   a key component of Lean, can be help. As their improvement is a high priority goal

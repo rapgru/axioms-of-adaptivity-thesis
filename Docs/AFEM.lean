@@ -16,17 +16,18 @@ htmlSplit := .never
 The Adaptive Finite Element Method is an iterative approach for solving
 partial differential equations based on the Finite Element Method.
 It uses a-posteriori error estimators to guide a local mesh-refinement process.
-This allows to resolve local features of the solution more efficiently while
-keeping the overall degrees of freedom lower compared to uniform mesh refinement.
-In the following, we summarize the basic concepts of this method.
+This allows one to resolve local features of the solution more efficiently while
+keeping the number of degrees of freedom and thus the computational effort lower compared
+to uniform mesh refinement. In the following, we summarize the basic concepts of this method.
 
 # A Posteriori Error Estimators
 
 For this section, assume that we want to approximate the solution $`u` of a
 partial differential equation using the finite element method (in an appropriate
 function space $`\mathcal{X}`). For a mesh $`\mathcal{T} ∈ \mathbb{T}` of
-the problem domain, we can obtain a discrete approximations $`u_{\mathcal{T}}`
-living on this mesh.
+the problem domain, we can obtain a discrete approximation $`u_{\mathcal{T}}`
+as an element of a discrete function space defined on this mesh
+(e.g., elementwise polynomials with some global continuity restriction).
 
 A posteriori error estimators are computable quantities that estimate the error
 of a numerical solution to a partial differential equation. _Computable_ means
@@ -52,7 +53,7 @@ In a very strong sense, we want the error estimator $`\eta` to be _reliable_ and
    means that the error estimator also bounds the error from below,
    i.e., there exists a constant $`C_{\mathrm{eff}} > 0` such that for all meshes
    $`\mathcal{T}` of the problem domain
-   $$`C_{\mathrm{eff}} \, \eta(u_{\mathcal{T}}) \leq \|u - u_{\mathcal{T}}\|_\mathcal{X} .`
+   $$`C_{\mathrm{eff}} \, \eta(u_{\mathcal{T}}) \leq \|u - u_{\mathcal{T}}\|_\mathcal{X} + \mathrm{higher\ order\ terms}.`
 
 These two properties ensure that the error estimator is a good measure
 of the actual error. Reliability ensures that the computed solution is accurate
@@ -102,7 +103,7 @@ The general structure of an AFEM algorithm is as follows:
       _Dörfler marking_.
    5. Refine the marked elements to create a new shape-regular mesh $`\mathcal{T}_{k+1}`.
 
-One can show that under suitable assumptions that the AFEM algorithm converges to
+One can show that, under suitable assumptions, that the AFEM algorithm converges to
 the exact solution $`u` as the number of iterations $`k \to \infty`.
 Moreover, the convergence can be shown to be optimal in the sense that
 the error decreases at the best possible rate compared to any other mesh refinement

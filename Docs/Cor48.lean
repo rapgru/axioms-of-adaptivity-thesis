@@ -143,14 +143,15 @@ by induction. The case $`n=0` is trivial, and the step is shown by
 $$`
 \begin{aligned}
 η_{n+2}^2 &≤ q η_{n+1}^2 + C d_{n+1}^2 \\
-&\stackrel{(IH)}{≤} q \left( q^{n+1} η_0^2 + C ∑_{k=0}^n q^{n-k} d_k^2 \right) + C d_{n+1}^2 \\
+&\stackrel{(*)}{≤} q \left( q^{n+1} η_0^2 + C ∑_{k=0}^n q^{n-k} d_k^2 \right) + C d_{n+1}^2 \\
 &= q^{n+2} η_0^2 + C ∑_{k=0}^n q^{n-k+1} d_k^2 + C d_{n+1}^2 \\
 &= q^{n+2} η_0^2 + C ∑_{k=0}^{n+1} q^{n-k+1} d_k^2
 \end{aligned}
 `
+where the step marked with $`(*)` uses the induction hypothesis.
 
 The Lean proof is very much identical, however the last equality
-could be more efficient by using automated tactics in combination with
+could be shown more efficiently by using automated tactics in combination with
 more granular calculation steps. Doing everything at once requires
 surgical rewrites.
 ```anchor estimator_recursive_upper_bound
@@ -263,7 +264,7 @@ proof that the terms involved are non-negative ({anchorTerm weighted_sum_bound}`
 tag := "boundedness_eta"
 %%%
 
-The main $`d` argument for $`\lim_{n→∞} η_n = 0` uses the $`\limsup` of $`(η_n)`.
+The argument to reach $`\lim_{n→∞} η_n = 0` will use the $`\limsup` of the sequence $`(η_n)`.
 Because the $`\limsup` of an unbounded sequence is defined to be zero
 in Lean, the next step will be to explicitly show that $`(η_n)`
 is bounded, giving us access to mathlib theorems about $`\limsup`.
@@ -417,7 +418,7 @@ $$`
 So by standard analysis, if $`\liminf` and $`\limsup` agree, we have
 convergence, which means $`\lim_{n→∞} η_n = 0`.
 
-The Lean proof is totally analogous, again supplying additional boundedness
+The Lean proof is completely analogous, again supplying additional boundedness
 proofs to unlock the analytical mathlib theorems
 ```anchor convergence_of_estimator_simple
 theorem convergence_of_estimator_simple (hd_lim : Tendsto d atTop (𝓝 0)) : Tendsto (η^2) atTop (𝓝 0) := by

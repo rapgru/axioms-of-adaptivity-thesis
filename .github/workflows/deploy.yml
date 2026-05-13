@@ -46,6 +46,11 @@ jobs:
       - name: Get Mathlib cache
         run: lake exe cache get
 
+      - name: Apply local Verso patch
+        run: |
+          chmod +x scripts/patch_verso.sh
+          scripts/patch_verso.sh
+
       - name: Build Docs
         run: lake exe docs
 

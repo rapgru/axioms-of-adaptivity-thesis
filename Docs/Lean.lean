@@ -13,16 +13,25 @@ set_option pp.rawOnError true
 htmlSplit := .never
 %%%
 
-In this thesis we will use the Lean _theorem prover_ or _proof assistant_, to
+In this thesis, we will use the Lean _theorem prover_ or _proof assistant_, to
 formally verify mathematical theorems from *AoA* by providing it with
 formalized versions of the theorem statements and proofs.
 This chapter will elaborate on the idea behind this venture.
 
 Modern logic has shown that very slim logical calculi exists that are
-still powerful enough to prove most (the true) theorems.
-The key here is the simplicity of these systems. For example, Hilbert calculus
-allows only modus ponens as an inference rule but can still prove any true
-statement in propositional logic. By reducing proofs to this level, computers
+still powerful enough to prove most (i.e. all provable) theorems.
+Take for example the Hilbert calculus:
+A formal proof in this system is a sequence of formulas, where each formula is either
+an axiom or follows from previous formulas by modus ponens.
+So the only inference rule is modus ponens, which can be written as
+$$`
+\frac{A \to B \quad A}{B}
+`
+which means that if we have a formula of the form $`A \to B` and a formula $`A`, then we can infer $`B`.
+This is already a very powerful system that has been shown to be able to prove any
+true statement in first-order logic.
+
+The key here is the simplicity of these systems: By reducing proofs to this level, computers
 get a chance at helping with both finding and verifying mathematical proofs.
 This is exactly where proof assistants come into play. They
 allow us to write proofs in a formal language that can be checked for correctness
@@ -32,10 +41,14 @@ In the field of automated reasoning, there are two terms associated
 with such computer systems:
 : Automated theorem proving
 
-  concentrates on the proof-finding aspect. Looking back to our example,
-  when using a Hilbert calculus, the method of resolution can be used to
-  automatically find proofs. Given that mathematics is mostly concerned with
+  concentrates on the proof-finding aspect. Given that mathematics is mostly concerned with
   finding proofs, this can obviously be helpful.
+
+  Looking back at our example, when using the Hilbert calculus, the method of resolution is
+  a relatively simple algorithm that can be used to automatically find proofs in this system
+  (see {citet leitsch1997resolution}[] for a standard treatment).
+  It is a complete method for first-order logic, which means that if a formula is provable,
+  the algorithm will find a proof for it.
 
 : Interactive theorem proving
 
@@ -103,9 +116,8 @@ due to the user-maintained mathematic library [mathlib4](https://github.com/lean
 It contains a large collection of predefined objects and theorems
 that can be used to base own definitions and proofs on. In the
 context of numerics preexisting building blocks would be functions, limits (topology),
-finite sums, series and their accompanying theorems. A basic theorem one might use
-in own code is that the sum of two convergent sequences converges to the sum of the limits.
-Having this framework considerable cuts down on the setup code needed for a
-proof formalization in Lean. That the library is centrally maintained by the Lean community
-ensures that it is of high quality and its widespread use guarantees that
+finite sums, series and their accompanying theorems. An example
+of such a basic theorem is that the sum of two convergent sequences converges to the sum of the limits.
+Having this framework considerably shortens the formalized proofs in Lean. Central maintainance of the library ensures
+that it is of high quality and its widespread use guarantees that
 basing own code on the work of others does not lead to compatibility issues.

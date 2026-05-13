@@ -3,7 +3,6 @@ open Verso.Genre.Manual
 
 namespace Docs
 
-
 -- Here, `inlines!` is a macro that parses a string constant into Verso inline elements
 def someThesis : Thesis where
   title := inlines!"A Great Thesis"
@@ -26,7 +25,7 @@ def someArXiv : ArXiv where
 
 def axioms : Article where
   title := inlines!"Axioms of adaptivity"
-  authors := #[inlines!"Carstensen, C.", inlines!"Feischl, M.", inlines!"Page, M.", inlines!"Praetorius, D."]
+  authors := #[inlines!"C. Carstensen", inlines!"M. Feischl", inlines!"M. Page", inlines!"D. Praetorius"]
   journal := inlines!"Computers & Mathematics with Applications"
   year := 2014
   month := some inlines!"April"
@@ -35,9 +34,19 @@ def axioms : Article where
   pages := some (1195, 1253)
   url := "https://doi.org/10.1016/j.camwa.2013.12.003"
 
+def leitsch1997resolution : Article where
+  title := inlines!"The Resolution Calculus"
+  authors := #[inlines!"Alexander Leitsch"]
+  year := 1997
+  journal := inlines!"Texts in Theoretical Computer Science. An EATCS Series"
+  url := "https://doi.org/10.1007/978-3-642-60605-2"
+  month := none
+  volume := inlines!""
+  number := inlines!""
+
 def ho2022aeneas : Article where
   title := inlines!"Aeneas: Rust verification by functional translation"
-  authors := #[inlines!"Ho, Son", inlines!"Protzenko, Jonathan"]
+  authors := #[inlines!"Son Ho", inlines!"Jonathan Protzenko"]
   journal := inlines!"Proc. ACM Program. Lang."
   year := 2022
   month := some inlines!"August"
@@ -48,28 +57,28 @@ def ho2022aeneas : Article where
 def hales2017proof : Article where
   title := inlines!"A formal proof of the Kepler conjecture"
   authors := #[
-    inlines!"Hales, Thomas",
-    inlines!"Adams, Mark",
-    inlines!"Bauer, Gertrud",
-    inlines!"Dang, Tat Dat",
-    inlines!"Harrison, John",
-    inlines!"Hoang, Le Truong",
-    inlines!"Kaliszyk, Cezary",
-    inlines!"Magron, Victor",
-    inlines!"McLaughlin, Sean",
-    inlines!"Nguyen, Tat Thang",
-    inlines!"Nguyen, Truong Quang",
-    inlines!"Nipkow, Tobias",
-    inlines!"Obua, Steven",
-    inlines!"Pleso, Joseph",
-    inlines!"Rute, Jason",
-    inlines!"Solovyev, Alexey",
-    inlines!"Ta, An Hoai Thi",
-    inlines!"Tran, Trung Nam",
-    inlines!"Trieu, Diep Thi",
-    inlines!"Urban, Josef",
-    inlines!"Vu, Ky Khac",
-    inlines!"Zumkeller, Roland"
+    inlines!"Thomas Hales",
+    inlines!"Mark Adams",
+    inlines!"Gertrud Bauer",
+    inlines!"Tat Dat Dang",
+    inlines!"John Harrison",
+    inlines!"Le Truong Hoang",
+    inlines!"Cezary Kaliszyk",
+    inlines!"Victor Magron",
+    inlines!"Sean McLaughlin",
+    inlines!"Tat Thang Nguyen",
+    inlines!"Truong Quang Nguyen",
+    inlines!"Tobias Nipkow",
+    inlines!"Steven Obua",
+    inlines!"Joseph Pleso",
+    inlines!"Jason Rute",
+    inlines!"Alexey Solovyev",
+    inlines!"An Hoai Thi Ta",
+    inlines!"Trung Nam Tran",
+    inlines!"Diep Thi Trieu",
+    inlines!"Josef Urban",
+    inlines!"Ky Khac Vu",
+    inlines!"Roland Zumkeller"
   ]
   journal := inlines!"Forum of Mathematics, Pi"
   year := 2017
@@ -80,7 +89,7 @@ def hales2017proof : Article where
 
 def avigad2024formal : Article where
   title := inlines!"Mathematics and the formal turn"
-  authors := #[inlines!"Avigad, Jeremy"]
+  authors := #[inlines!"Jeremy Avigad"]
   journal := inlines!"Bull. Amer. Math. Soc."
   year := 2024
   month := some inlines!"April"
@@ -92,45 +101,45 @@ def avigad2024formal : Article where
 def hubert2025olympiad : Article where
   title := inlines!"Olympiad-level formal mathematical reasoning with reinforcement learning"
   authors := #[
-    inlines!"Hubert, Thomas",
-    inlines!"Mehta, Rishi",
-    inlines!"Sartran, Laurent",
-    inlines!"Horváth, Miklós Z.",
-    inlines!"Žužić, Goran",
-    inlines!"Wieser, Eric",
-    inlines!"Huang, Aja",
-    inlines!"Schrittwieser, Julian",
-    inlines!"Schroecker, Yannick",
-    inlines!"Masoom, Hussain",
-    inlines!"Bertolli, Ottavia",
-    inlines!"Zahavy, Tom",
-    inlines!"Mandhane, Amol",
-    inlines!"Yung, Jessica",
-    inlines!"Beloshapka, Iuliya",
-    inlines!"Ibarz, Borja",
-    inlines!"Veeriah, Vivek",
-    inlines!"Yu, Lei",
-    inlines!"Nash, Oliver",
-    inlines!"Lezeau, Paul",
-    inlines!"Mercuri, Salvatore",
-    inlines!"Sönne, Calle",
-    inlines!"Mehta, Bhavik",
-    inlines!"Davies, Alex",
-    inlines!"Zheng, Daniel",
-    inlines!"Pedregosa, Fabian",
-    inlines!"Li, Yin",
-    inlines!"von Glehn, Ingrid",
-    inlines!"Rowland, Mark",
-    inlines!"Albanie, Samuel",
-    inlines!"Velingker, Ameya",
-    inlines!"Schmitt, Simon",
-    inlines!"Lockhart, Edward",
-    inlines!"Hughes, Edward",
-    inlines!"Michalewski, Henryk",
-    inlines!"Sonnerat, Nicolas",
-    inlines!"Hassabis, Demis",
-    inlines!"Kohli, Pushmeet",
-    inlines!"Silver, David"
+    inlines!"Thomas Hubert",
+    inlines!"Rishi Mehta",
+    inlines!"Laurent Sartran",
+    inlines!"Miklós Z. Horváth",
+    inlines!"Goran Žužić",
+    inlines!"Eric Wieser",
+    inlines!"Aja Huang",
+    inlines!"Julian Schrittwieser",
+    inlines!"Yannick Schroecker",
+    inlines!"Hussain Masoom",
+    inlines!"Ottavia Bertolli",
+    inlines!"Tom Zahavy",
+    inlines!"Amol Mandhane",
+    inlines!"Jessica Yung",
+    inlines!"Iuliya Beloshapka",
+    inlines!"Borja Ibarz",
+    inlines!"Vivek Veeriah",
+    inlines!"Lei Yu",
+    inlines!"Oliver Nash",
+    inlines!"Paul Lezeau",
+    inlines!"Salvatore Mercuri",
+    inlines!"Calle Sönne",
+    inlines!"Bhavik Mehta",
+    inlines!"Alex Davies",
+    inlines!"Daniel Zheng",
+    inlines!"Fabian Pedregosa",
+    inlines!"Yin Li",
+    inlines!"Ingrid von Glehn",
+    inlines!"Mark Rowland",
+    inlines!"Samuel Albanie",
+    inlines!"Ameya Velingker",
+    inlines!"Simon Schmitt",
+    inlines!"Edward Lockhart",
+    inlines!"Edward Hughes",
+    inlines!"Henryk Michalewski",
+    inlines!"Nicolas Sonnerat",
+    inlines!"Demis Hassabis",
+    inlines!"Pushmeet Kohli",
+    inlines!"David Silver"
   ]
   journal := inlines!"Nature"
   year := 2025
@@ -141,7 +150,7 @@ def hubert2025olympiad : Article where
 
 def feischl2025fem : InProceedings where
   title := inlines!"Numerics of Partial Differential Equations: Stationary Problems"
-  authors := #[inlines!"Feischl, Michael", inlines!"Praetorius, Dirk"]
+  authors := #[inlines!"Michael Feischl", inlines!"Dirk Praetorius"]
   year := 2025
   booktitle := inlines!"Lecture Notes, TU Wien"
   url := "https://michaelfeischl.github.io/lecturenotes/FEM_VO.pdf"

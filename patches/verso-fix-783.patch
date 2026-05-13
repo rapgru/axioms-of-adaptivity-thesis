@@ -1,0 +1,14 @@
+*** Begin Patch
+*** Update File: /Users/rgruber/Documents/TU/Axioms_of_Adaptivity/manual/.lake/packages/verso/src/verso-manual/VersoManual/Bibliography.lean
+@@
+-    else if h : p.authors.size > 3 then
+-      (· ++ {{<em>"et al"</em>}}) <$> go (Bibliography.lastName p.authors[0])
++    else if h : p.authors.size > 3 then
++      (· ++ {{" "<em>"et al."</em>}}) <$> go (Bibliography.lastName p.authors[0])
+@@
+-    else if h : p.authors.size > 3 then
+-      (· ++ \TeX{\em{"et al"} }) <$> go (Bibliography.lastName p.authors[0])
++    else if h : p.authors.size > 3 then
++      (· ++ \TeX{" " \em{"et al."} }) <$> go (Bibliography.lastName p.authors[0])
+
+*** End Patch

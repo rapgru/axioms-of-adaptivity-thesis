@@ -17,9 +17,9 @@ htmlSplit := .never
 tag := "meshes"
 %%%
 
-At the core of the adaptive finite element method are
-space discretizations of the problems domain. We call a space discretization
-*mesh*. Take as typical example of a mesh the following 2D-triangulation of an L-shaped domain.
+At the core of the adaptive finite element method are decompositions of the underlying physical space
+of the problem into simplices. We call such a decomposition "mesh". As a typical example,
+consider the following 2D-triangulation of an L-shaped domain.
 
 ![Triangulation of an L-Shaped domain in 2D](static_files/afem/mesh_0_small.png)
 
@@ -28,34 +28,39 @@ After we have an idea
 of what a mesh is, the {ref "afem"}[next chapter] will then give an overview of
 the adaptive finite element method using the definitions from this chapter.
 
-*AoA* treats meshes very intuitively because the reader has sufficient understanding
-of the terms "triangulation" / "refinement" and their properties.
-For our formalization this is not explicit enough, we need to
+*AoA* treats meshes very intuitively because the reader is assumed to have sufficient understanding of the terms commonly used in numerical analysis research.
+For our formalization, this is not explicit enough, we need to
 precisely define meshes and refinements in Lean, taking care to be as general
 as possible.
 
 We will present both a mathematically typeset definition and the Lean implementation
 of meshes. This has two reasons:
 - The definition of meshes is original to this formalization and
-- to highlight how the two versions translate.
+- we want to highlight how the two versions translate.
 
 # Informal definition
 
-The idea is that a mesh consists of elements that form
-the problems domain when seen as a collection. So we want a mesh
-to be a finite set of "elements". In two dimensions such "elements"
-making up a domain could be triangles.
-The objective is to find an appropriate abstraction for the "elements"
-that make up a mesh.
+The idea is that a mesh consists of simple elements, often simplices, that partition the problem domain.
+A mesh is therefore a finite set of elements. We also need an appropriate
+structure for these elements and additional assumptions on the finite set
+that capture the partitioning property of a mesh. In the interest of flexibility,
+we aim for a definition that is general enough to cover what we intuitively
+understand as meshes, but strong enough to make refinements form a partial order.
 
-The natural first step is to assume that our elements are
-sets (usually subsets of $`ℝ^d`). As we will see
-intersection and union can be used to define a very intuitive refinement relation.
-The second step we take is
-abstracting away the set operations and generalising using
-an arbitrary lattice structure (this choice is motivated
-by the Lean implemenetation, c.f. {ref "sets_vs_lattice"}[Sets vs. Lattice]).
-Taking these steps, the definition of a mesh reads as follows:
+We first think of elements as sets, usually subsets of $`ℝ^d`, because this makes the refinement
+relation easy to understand.
+We then generalize to an arbitrary lattice structure to separate the conceptual idea from the
+specific set-based model.
+This choice is partly motivated by Lean, c.f. {ref "sets_vs_lattice"}[Sets vs. Lattice]).
+
+As a short reminder, the definition of a lattice reads as follows:
+> *Definition (Lattice):* The structure $`(\mathcal{L}, ⊔, ⊓)` is called a _lattice_ iff
+  - $`\mathcal{L}` is a set, $`⊔` and $`⊓` are commutative and associative binary operations on $`\mathcal{L}` and
+  - the absorption laws hold, i.e. for all $`A, B ∈ \mathcal{L}` we have
+    $$`A ⊔ (A ⊓ B) = A` and $$`A ⊓ (A ⊔ B) = A.`
+  The structure $`(\mathcal{L}, ⊔, ⊓, ⊥)` is called a _lattice that is bounded below_ iff $`(\mathcal{L}, ⊔, ⊓)` is a lattice and for all $`A ∈ \mathcal{L}` we have $`⊥ ⊓ A = ⊥.`
+
+Taking the outlined steps, the definition of a mesh is as follows:
 
 > *Definition (Mesh):* Let $`(\mathcal{L}, ⊔, ⊓, ⊥)` be a lattice that is bounded below by $`⊥`. A finite subset
   $`\mathcal{T} ⊆ \mathcal{L}` is called a _mesh_ (in $`\mathcal{L}`) iff:
@@ -67,7 +72,7 @@ For the remainder of the thesis we fix a lattice $`(\mathcal{L}, ⊔, ⊓, ⊥)`
 and define $`\mathbb{T}` to be the set of all meshes (on $`\mathcal{L}`).
 
 We go ahead and define the partition relation as
-> *Definition (Partition):* A mesh $`\mathcal{T}` _partitions_ an element $`S ∈ \mathcal{L}` (denoted as $`\mathcal{T} ↪ T`) iff
+> *Definition (Partition):* A mesh $`\mathcal{T}` _partitions_ an element $`S ∈ \mathcal{L}` (denoted as $`\mathcal{T} ↪ S`) iff
   $$`⨆_{T ∈ \mathcal{T}} T = S.`
 
 Finally, we can define the refinement relation on all meshes as follows:
@@ -81,6 +86,35 @@ constructed (in the $`⊔` sense) from elements of $`\mathcal{T'}`.
 This definition will allow us to show that $`\mathbb{T}`
 together with the refinement relation $`≤` forms
 a partial order.
+
+## The regular closed set lattice
+
+To see how this definition captures the intuitive idea of meshes, we can look at the example of the regular closed set lattice on $`ℝ^d`.
+Let $`\mathcal{L}` be the set of all regular closed sets, i.e.
+$$`\mathcal{L} := \{A ⊆ ℝ^d : A = \overline{\mathrm{int}(A)}\}.`
+Here $`\mathrm{int}(A)` is the interior of $`A` and $`\overline{A}` is the closure of $`A`.
+If we define the operations $`⊔` and $`⊓` as
+$$`\begin{align*}
+A ⊔ B &:= \overline{\mathrm{int}(A ∪ B)} \\
+A ⊓ B &:= A ∩ B,
+\end{align*}
+`
+then $`(\mathcal{L}, ⊔, ⊓, ∅)` forms a lattice that is bounded below by the empty set.
+
+In this setting, elements like
+triangles, general polygons or higher-dimensional simplices are regular closed sets and
+can be used as elements of a mesh.
+The non-standard intersection operation ensures
+that elements that only touch at their boundary are still disjoint in the $`⊓` sense,
+which ensures that the disjointness property of our mesh definition is satisfied for
+typical meshes in numerical analysis.
+
+The partition relation $`\mathcal{T} ↪ S` means that the union of the elements in
+$`\mathcal{T}` is equal to $`S`, which captures the idea of a mesh partitioning
+the domain. The refinement relation $`\mathcal{T'} ≤ \mathcal{T}` means that
+every element of $`\mathcal{T}` can be expressed as a union of elements from
+$`\mathcal{T'}`, which corresponds to the intuitive notion of one mesh being
+a refinement of another.
 
 # Lean definition
 
@@ -165,7 +199,7 @@ more or less a {anchorTerm Mesh}`Finset α` where the arbitrary type
 tag := "sets_vs_lattice"
 %%%
 
-The use of an arbitrary lattice instead of Sets is due to the constructive
+The use of an arbitrary lattice instead of sets is partly due to the constructive
 nature of Lean:
 To show that the set of all meshes with the refinement relation forms a partial order,
 we need the additional assumption `[DecidableEq α]` on {anchorTerm Mesh}`α`.
@@ -177,10 +211,10 @@ So for example the construction of a union $`A∪B` of two `Finset`s requires to
 the elements of $`A` and $`B` for duplicates. To carry out this check, equality
 on {anchorTerm Mesh}`α` has to be decidable.
 
-Because of the constructive nature of Lean, (infinite) sets do not fulfil decidability
+Due to Lean's constructive nature, (infinite) sets do not fulfil decidability
 equality.
-By default, the axioms Lean is based on do not imply the law of excluded middle.
-So it is not guaranteed that we can always
+This is because by default Lean's axioms do not imply the law of excluded middle.
+It is therefore not guaranteed that we can
 find a proof of $`A = B` or $`A ≠ B` for two arbitrary sets $`A, B`.
 Using, e.g., the subsets of $`ℝ^d` as {anchorTerm Mesh}`α` would not
 give us the partial order result.
@@ -195,12 +229,14 @@ on {anchorTerm Mesh}`α`. This way we can assume that the operations we need are
 available and
 just pose the decidability of equality on {anchorTerm Mesh}`α` as an assumption.
 
-Polygons are an example of a lattice that
-is bounded below when we include an "empty polygon". The intersection of
-two finite polygons is also a polygon and the same holds for the union, given
-that we allow disconnected polygons. It is a sublattice of the sets on $`ℝ^2`.
+Polygons seen as a sublattice of the regular closed set lattice on $`ℝ^2` are a good
+example of a lattice that satisfies the decidability of equality and can be
+used as {anchorTerm Mesh}`α`.
+The intersection of two finite polygons is also a polygon and the same holds
+for the union, given
+that we allow disconnected polygons.
 This type can be implemented in a way such that equality is algorithmically
-decidable (e.g. by storing the points that make up the polygon).
+decidable by e.g. storing the points that make up the polygon.
 
 Because sets are a special case of a lattice, we can still use sets as
 the arbitrary lattice {anchorTerm Mesh}`α` if we

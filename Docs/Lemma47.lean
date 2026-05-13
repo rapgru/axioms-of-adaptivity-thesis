@@ -82,7 +82,7 @@ the only the elements that have been refined:
   `
 
 The proof is straightforward. It follows from the Dörfler property,
-$`ℳ_l ⊆ \mathcal{T}_l \setminus \mathcal{T}_{l+1}` and that a sum does not increase when
+$`ℳ_l ⊆ \mathcal{T}_l \setminus \mathcal{T}_{l+1}` and that a sum does not decrease when
 we add non-negative summands. In Lean the proof reads as
 ```anchor doerfler_for_refined_elements
 lemma doerfler_for_refined_elements :
@@ -317,8 +317,8 @@ Next, by definition of the global error $`η^2` and basic set identities
 $$`
 \begin{aligned}
 &= ρ_{\mathrm{red}} \sum_{T \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_T^2(\mathcal{T}_l, U(\mathcal{T}_l)) \\
-&\quad + (1+δ) \left(η^2(\mathcal{T}_l, U(\mathcal{T}_l)) - \sum_{T \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_T^2(\mathcal{T}_l, U(\mathcal{T}_l))\right).
-&\quad + (C_{\mathrm{red}} + (1+δ⁻¹) C_{\mathrm{stab}}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
+&\quad + (1+δ) \left(η^2(\mathcal{T}_l, U(\mathcal{T}_l)) - \sum_{T \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_T^2(\mathcal{T}_l, U(\mathcal{T}_l))\right)\\
+&\quad + (C_{\mathrm{red}} + (1+δ⁻¹) C_{\mathrm{stab}}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2.
 \end{aligned}
 `
 
@@ -345,9 +345,9 @@ in the proof to go from the simpler inequality to the original goal on its own.
 Now, because $`δ > 0` we have
 $$`
 \begin{aligned}
-&\le (1+δ) ρ_{\mathrm{red}} \sum_{T \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_T^2(\mathcal{T}_l, U(\mathcal{T}_l)).
+&\le (1+δ) ρ_{\mathrm{red}} \sum_{T \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_T^2(\mathcal{T}_l, U(\mathcal{T}_l)) \\
 &\quad + (1+δ) \left(η^2(\mathcal{T}_l, U(\mathcal{T}_l)) - \sum_{t \in \mathcal{T}_l \setminus \mathcal{T}_{l+1}} η_t^2(\mathcal{T}_l, U(\mathcal{T}_l))\right) \\
-&\quad + (C_{\mathrm{red}} + (1+δ⁻¹) C_{\mathrm{stab}}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2 \\
+&\quad + (C_{\mathrm{red}} + (1+δ⁻¹) C_{\mathrm{stab}}^2) 𝕕[\mathcal{T}_{l+1}, U(\mathcal{T}_{l+1}), U(\mathcal{T}_l)]^2.
 \end{aligned}
 `
 

@@ -19,7 +19,7 @@ In this chapter, we formalize the abstract setting from the
 article *AoA*, building on our mesh
 definition from a {ref "meshes"}[previous chapter].
 
-The setting of *AoA* is that we want to approximate the solution of our
+In the setting of *AoA*, we want to approximate the solution of our
 problem in some vector space $`\mathcal{X}`. In the formalization this
 space is represented by the type variable {anchorTerm RefinementIndicator}`β`.
 The proofs that we formalize do not depend on the concrete structure of
@@ -229,10 +229,9 @@ In Lean this translates as
 
 ### Reliability
 
-Because we do not formalize the Lemma 3.4 from *AoA* that shows reliability
+Because we do not formalize Lemma 3.4 from *AoA* which shows reliability
 from the _dicrete reliability_ (A4) axiom and an additional condition on the
-error measure, our reliability assumption will be the result from that lemma instead
-of discrete reliability.
+error measure, we directly assume reliability as an axiom instead of discrete reliability.
 
 Reliability states that for some $`C_{\mathrm{drel}} > 0` with $`C_{\mathrm{rel}} \coloneqq C_{Δ}C_{\mathrm{drel}}`
 it holds that
@@ -252,7 +251,7 @@ where we use the helper function {anchorTerm AdaptiveAlgorithm_10}`C_rel'`.
 
 ### General quasi-orthogonality
 
-Finally, general quasi-orthogonality (A3) states that constants
+Finally, general quasi-orthogonality (A3) states that there exist constants
 $`C_{\mathrm{qo}} ≥ 1` and
 $$`0 ≤ ε_{qo} < ε^*_{\mathrm{qo}}(θ) \coloneqq \sup_{δ > 0} \frac{1-(1+δ)(1-(1-ρ_{\mathrm{red}})θ)}{C_{\mathrm{rel}}^2 (C_{\mathrm{red}} + (1+δ⁻¹)C_{\mathrm{stab}}^2)}`
 such that for all $`l,N∈ℕ` with $`N≥l`

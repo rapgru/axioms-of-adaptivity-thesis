@@ -44,14 +44,16 @@ tag := "lem47_formal_statement"
 %%%
 
 After the Lean proof did not work out at some point, the author
-discovered that the lemma misses a small assumption, which
-shows that a formalization can help spot mistakes of this sort. The problem is that
-inverse summability is only well-defined if $`∀ n ∈ ℕ : a_n ≠ 0`.
+discovered that the lemma is missing a small assumption, which
+shows that a formalization can help spot mistakes of this sort.
+The problem is that inverse summability is only well-defined if
+$`∀ l ∈ ℕ : η(\mathcal{T}_l, U(\mathcal{T}_l)) ≠ 0`. Otherwise we
+would need to further specify what $`0^{-1/s}` is for $`s > 0`.
 
 We can also observe, that the statement is equally true if we replace the
 global error estimator by an arbitrary non-negative sequence $`(a_n)_{n∈ℕ}`. Because $`η`
 is non-negative by definition, we can recover the original form
-by plugging in the sequence $`(η(\mathcal{T}_l, U(\mathcal{T}_l)))`. So we
+by plugging in the sequence $`(η(\mathcal{T}_l, U(\mathcal{T}_l)))_{l∈ℕ}`. So we
 will show the equivalence in the form:
 
 > For any *positive* sequence $`(a_n)_{n∈ℕ}`, the following statements are pairwise equivalent:
@@ -415,10 +417,10 @@ This would be very easily proven by applying equivalent transformations on the
 bound from R-linear convergence
 $$`
   \begin{aligned}
-    &a_{l+k}^2 &\leq C q^k a_l^2 &| (·)^{\frac{1}{2s}} \\
-    &\Rightarrow a_{l+k}^{\frac{1}{s}} &\leq C^{\frac{1}{2s}} q^{\frac{k}{2s}} a_l^{\frac{1}{s}} &| \cdot a_{l+k}^{-\frac{1}{s}} \\
-    &\Rightarrow a_{l+k}^{\frac{1}{s}} a_{l+k}^{-\frac{1}{s}} &\leq C^{\frac{1}{2s}} q^{\frac{k}{2s}} a_l^{\frac{1}{s}} a_{l+k}^{-\frac{1}{s}} &| \cdot a_l^{-\frac{1}{s}} \\
-    &\Rightarrow a_l^{-\frac{1}{s}} &\leq C^{\frac{1}{2s}} q^{\frac{k}{2s}} a_{l+k}^{-\frac{1}{s}}
+  a_{l+k}^2 &\leq C q^k a_l^2 && \big| (·)^{\frac{1}{2s}} \\
+  \Rightarrow a_{l+k}^{\frac{1}{s}} &\leq C^{\frac{1}{2s}} q^{\frac{k}{2s}} a_l^{\frac{1}{s}} && \big| \cdot a_{l+k}^{-\frac{1}{s}} \\
+  \Rightarrow a_{l+k}^{\frac{1}{s}} a_{l+k}^{-\frac{1}{s}} &\leq C^{\frac{1}{2s}} q^{\frac{k}{2s}} a_l^{\frac{1}{s}} a_{l+k}^{-\frac{1}{s}} && \big| \cdot a_l^{-\frac{1}{s}} \\
+  \Rightarrow a_l^{-\frac{1}{s}} &\leq C^{\frac{1}{2s}} q^{\frac{k}{2s}} a_{l+k}^{-\frac{1}{s}}
   \end{aligned}
 `
 but in Lean this was not possible in this form because the algebraic simplification
