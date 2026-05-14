@@ -124,12 +124,11 @@ parameter combinations than what *AoA* prescribes. However, the formalization
 will never supply a mesh $`\mathcal{T}` and an element $`S∉\mathcal{T}` that is not from this mesh to the refinement
 indicator, which is why we afford this inaccuracy.
 
-
 We use the notation
 $$`
 η^2(\mathcal{T}, v) ≔ ∑_{T∈\mathcal{T}} η_T(\mathcal{T}, v)^2
 `
-for the global squared error defined by {anchorTerm gη2}`gη2`.
+for the global squared error defined by {anchorTerm gη2}`gη2`. We write the square as part of the function name to reflect the Lean definition {anchorTerm gη2}`gη2`; the notation corresponds to AoA's $`η^2(\mathcal{T}, v) = η(\mathcal{T}, v)^2` and should not be read as the square of a function $`η(\mathcal{T}, v)`.
 
 ## Error measure
 
